@@ -132,9 +132,7 @@ class BlasterRESTResource(object):
 
         blaster = get_blaster(attr, value)
 
-        if broadlink_rm_blaster_db.get_blaster_by_name(new_name) is None:
-            blaster.put_name(new_name)
-        else:
+        if not get_blaster(attr, value).put_name(new_name):
             raise falcon.HTTPConflict(description="Blaster '" + new_name + "' already exists")
     
     def on_post(self, req, resp, attr, value):
@@ -174,10 +172,8 @@ class TargetRESTResource(object):
     def on_patch(self, req, resp, target_name):
         new_name = req.get_param("new_name", required=True)
 
-        if broadlink_rm_command_db.get_target(new_name):
+        if not get_target(target_name).update_name(new_name):
             raise falcon.HTTPConflict(description="Target '" + new_name + "' already exists")
-        else:
-            get_target(target_name).update_name(new_name)
 
     def on_delete(self, req, resp, target_name):
         if not broadlink_rm_command_db.delete_target(target_name):
@@ -198,8 +194,9 @@ class TargetCommandsRESTResource(object):
 
 # Resource to interact with Target specific Command
 # /targets/{target_name}/commands/{command_name}
-# GET returns Command Value
-# PUT creates/updates command - uses "value" param if exists otherwise learns command from blaster with blaster_attr/blaster_value pair
+# GET returns command value
+# PUT creates/updates command value - uses "value" param if exists otherwise learns command from blaster with blaster_attr/blaster_value pair
+# PATCH updates command name to new_name
 # DELETE deletes command
 
 class TargetCommandRESTResource(object):
@@ -225,6 +222,12 @@ class TargetCommandRESTResource(object):
                     target.put_command(command_name, value)
                 else:
                     raise falcon.HTTPGatewayTimeout(description="Blaster did not receive any IR signals to learn")
+
+    def on_patch(self, req, resp, target_name, command_name):
+        new_name = req.get_param("new_name", required=True)
+
+        if not get_command(target_name, new_name).update_name(new_name):
+            raise falcon.HTTPConflict(description="Command '" + new_name + "' already exists for Target'" + target_name + "'")
     
     def on_delete(self, req, resp, target_name, command_name):
         get_command(target_name, command_name).delete_instance()
