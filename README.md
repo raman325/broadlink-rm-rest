@@ -17,6 +17,8 @@ Please read the [Notes](#notes) section before using. Refer to the [API](#api) s
 5. Navigate to the app folder
 6. Run ```gunicorn -b 0.0.0.0:8000 broadlink_rm_rest_app:app```
 
+Your databases will be available in the app/data folder.
+
 ### Docker Instructions
 
 To create and start container:
