@@ -68,8 +68,14 @@ class Target(BaseCommandsModel):
             return False
     
     def update_name(self, new_name):
-        self.name = new_name
-        self.save()
+        check_target = Target.get_or_none(Target.name == new_name)
+
+        if check_target:
+            return False
+        else:
+            self.name = new_name
+            self.save()
+            return True
 
 class Command(BaseCommandsModel):
     uid = AutoField()
@@ -82,6 +88,16 @@ class Command(BaseCommandsModel):
 
     def get_value(self):
         return value
+    
+    def update_name(self, new_name):
+        check_command = Command.get_or_none(Command.name == new_name)
+
+        if check_command:
+            return False
+        else:
+            self.name = new_name
+            self.save()
+            return True
 
 def get_all_targets():
     try:
@@ -108,16 +124,6 @@ def add_target(name):
     else:
         Target.create(name=name)
         return True
-
-def update_target_name(old_name, new_name):
-    target = Target.get_or_none(Target.name == old_name)
-
-    if target:
-        target.name = new_name
-        target.save()
-        return True
-    else:
-        return False
 
 def delete_target(name):
     target = Target.get_or_none(Target.name == name)
