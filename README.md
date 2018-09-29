@@ -5,7 +5,7 @@ This Python based web app provides REST interactivity with any local [Broadlink 
 
 NOTE: To connect your RM devices to your network without downloading the Broadlink app, refer to the [python-broadlink Example Use](https://github.com/mjg59/python-broadlink#example-use) instructions.
 
-Please read the [Notes](#notes) section before using.
+Please read the [Notes](#notes) section before using. Refer to the [API](#api) section to learn how this app can be used.
 
 ## Setup
 This application will eventually be Dockerized. For now, use the local setup instructions.
