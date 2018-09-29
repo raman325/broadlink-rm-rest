@@ -1,11 +1,11 @@
-# Broadlink RM REST App
+# Broadlink RM REST Server
 
 ## Purpose
-This Python based web app provides REST interactivity with any local [Broadlink RM*](http://www.ibroadlink.com/rm/) type IR/RF blasters.
+This Python based web server provides REST interactivity with any local [Broadlink RM*](http://www.ibroadlink.com/rm/) type IR/RF blasters.
 
-NOTE: To connect your RM devices to your network without downloading the Broadlink app, refer to the [python-broadlink Example Use](https://github.com/mjg59/python-broadlink#example-use) instructions.
+NOTE: To connect your RM devices to your network without downloading the Broadlink mobile app, refer to the [python-broadlink Example Use](https://github.com/mjg59/python-broadlink#example-use) instructions.
 
-Please read the [Notes](#notes) section before using. Refer to the [API](#api) section to learn how this app can be used.
+Please read the [Notes](#notes) section before using. Refer to the [API](#api) section to learn how this server can be used.
 
 ## Setup
 This application will eventually be Dockerized. For now, use the local setup instructions.
