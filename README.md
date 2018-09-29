@@ -22,6 +22,7 @@ To create and start container:
 
 #### Optional Environment Variables
 These can be added to the above command with ```shell -e <NAME>=<VALUE>```
+
 Parameter Name | Description
 -------------- | -----------
 HOST | Specifies the HOST that will be used to access the REST server. Defaults to ```0.0.0.0``` which exposes the server to the entire network. To provide local access only, use ```127.0.0.1``` or ```localhost``` instead.
@@ -32,6 +33,7 @@ In the ```shell docker run``` command listed above, the DB files (commands.db an
 
 ## API
 NOTE: All return values are in JSON format
+
 Endpoint | HTTP Method | Description | Returns
 -------- | ----------- | ----------- | -------
 ```/discoverblasters``` | ```GET``` | Discovers all new Broadlink RM blasters and adds them to the database (Note: blasters must be in the database before they can be used by the application). Blasters will be added to the database unnamed, so it's recommended to use ```PUT /blasters/<attr>/<value>?new_name=<new_name>``` to set a friendly name for each blaster. | ```num_devices``` - # of newly discovered devices
