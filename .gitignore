@@ -1,0 +1,4 @@
+app/data/*.db
+app/data/
+app/*.db
+app/*.pyc
