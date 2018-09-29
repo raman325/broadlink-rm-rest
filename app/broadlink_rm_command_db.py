@@ -3,10 +3,7 @@
 from peewee import *
 import json
 
-# Local version
-commands_db_path = 'commands.db'
-# Docker version
-# commands_db_path = '/data/commands.db'
+commands_db_path = 'data/commands.db'
 
 commands_db = SqliteDatabase(commands_db_path)
 
