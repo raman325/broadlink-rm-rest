@@ -12,18 +12,18 @@ This application will eventually be Dockerized. For now, use the local setup ins
 
 ### Local Setup
 1. Clone app/ to the folder of your choice. 
-2. Install dependencies via pip: ```shell pip install falcon peewee broadlink psycopg2-binary```
-3. Install the WSGI implementation of your choice (these instructions assume you are using gunicorn): ```shell pip install gunicorn```
+2. Install dependencies via pip: ```pip install falcon peewee broadlink psycopg2-binary```
+3. Install the WSGI implementation of your choice (these instructions assume you are using gunicorn): ```pip install gunicorn```
 4. Navigate to the app folder
 5. Run ```gunicorn -b 0.0.0.0:8000 app:blaster_app```
 
 ### Docker Instructions
 
 To create and start container:
-```shell docker run -d --name broadlink_rm_rest_app --restart unless-stopped -p 8000:8000 -v </local/path/to/data>:/data raman325/broadlink-rm-rest-app```
+```docker run -d --name broadlink_rm_rest_app --restart unless-stopped -p 8000:8000 -v </local/path/to/data>:/data raman325/broadlink-rm-rest-app```
 
 #### Optional Environment Variables
-These can be added to the above command with ```shell -e <NAME>=<VALUE>```
+These can be added to the above command with ```-e <NAME>=<VALUE>```
 
 Parameter Name | Description
 -------------- | -----------
@@ -31,7 +31,7 @@ HOST | Specifies the HOST that will be used to access the REST server. Defaults 
 PORT | Specifies the port that the container will listen on. Note that if this is changed, the ```create``` command should be updated accordingly (e.g. ```-p <Public Port>:<PORT>```)
 
 #### Persist DB files
-In the ```shell docker run``` command listed above, the DB files (commands.db and blasters.db) will be persisted in /local/path/to/data on your host server.
+In the ```docker run``` command listed above, the DB files (commands.db and blasters.db) will be persisted in /local/path/to/data on your host server.
 
 ## API
 NOTE: All return values are in JSON format
