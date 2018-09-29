@@ -48,16 +48,6 @@ class Target(BaseCommandsModel):
             command.save()
         else:
             Command.create(target=self, name=name, value=value)
-
-    def update_command_name(self, old_name, new_name):
-        command = Command.get_or_none((Command.target == self) & (Command.name == old_name)) 
-        
-        if command:
-            command.name = new_name
-            command.save()
-            return True
-        else:
-            return False
     
     def delete_command(self, name):
         command = Command.get_or_none((Command.target == self) & (Command.name == name))
