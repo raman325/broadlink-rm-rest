@@ -2,10 +2,10 @@
 # 
 #
 
-FROM python:2.7.15-alpine3.7
+FROM python:2.7.15-slim-stretch
 
 # create volume for SQLite DB files
-VOLUME ["/data"]
+VOLUME ["app/data"]
 
 # install dependencies
 RUN pip install falcon peewee broadlink gunicorn psycopg2-binary
