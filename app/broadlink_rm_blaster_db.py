@@ -36,8 +36,14 @@ class Blaster(BaseBlastersModel):
         return {"name": self.name, "ip": self.ip, "mac": self.mac}
     
     def put_name(self, name):
-        self.name = name
-        self.save()
+        check_blaster = Blaster.get_or_none(Blaster.name == name)
+        
+        if check_blaster:
+            return False
+        else:
+            self.name = name
+            self.save()
+            return True
     
     def send_command(self, command):
         device = self.get_device()
