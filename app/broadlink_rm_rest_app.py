@@ -252,20 +252,3 @@ app.add_route('/blasters/{attr}/{value}', blaster)
 app.add_route('/targets/{target_name}/commands/{command_name}', target_command)
 app.add_route('/targets/{target_name}/commands', target_commands)
 app.add_route('/targets/{target_name}', target)
-
-# GET /discoverblasters
-# GET /commands
-# GET /targets
-# PUT /targets/{target_name}
-# DELETE /targets/{target_name}
-# PATCH /targets/{target_name}?new_name={}
-# GET /targets/{target_name}/commands
-# GET /targets/{target_name}/commands/{command_name}
-# PUT /targets/{target_name}/commands/{command_name}
-# DELETE /targets/{target_name}/commands/{command_name}
-# GET /blasters
-# POST /blasters?target_name={}&command_name={}
-# GET /blasters/{attr=name/ip/mac}/{value}
-# DELETE /blasters/{attr=name/ip/mac}/{value}
-# PUT /blasters/{attr=name/ip/mac}/{value}?new_name={}
-# POST /blasters/{attr=name/ip/mac}/{value}?target_name={}&command_name={}
