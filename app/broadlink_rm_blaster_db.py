@@ -83,9 +83,14 @@ def get_new_blasters():
     cnt = 0
     for blaster in blasters:
         mac_hex = enc_hex(blaster.mac)
-        if Blaster.get_or_none(Blaster.mac_hex == mac_hex) is None:
+        tmp_blaster = Blaster.get_or_none(Blaster.mac_hex == mac_hex)
+        if tmp_blaster is None:
             cnt = cnt + 1
             Blaster.create(ip=blaster.host[0], port=blaster.host[1], devtype=blaster.devtype, mac_hex=mac_hex, mac=convert_mac(mac_hex), name=None)
+        else:
+            if not tmp_blaster.ip == blaster.ip:
+                tmp_blaster.ip = blaster.ip
+                tmp_blaster.save()
     
     return {"new_devices": cnt}
 
