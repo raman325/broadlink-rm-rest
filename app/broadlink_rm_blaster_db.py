@@ -5,10 +5,7 @@ import json
 from time import sleep
 import broadlink
 
-# Local version
-blasters_db_path = 'blasters.db'
-# Docker version
-# blasters_db_path = '/data/blasters.db'
+blasters_db_path = 'data/blasters.db'
 
 blasters_db = SqliteDatabase(blasters_db_path)
 
