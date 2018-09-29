@@ -8,7 +8,6 @@ NOTE: To connect your RM devices to your network without downloading the Broadli
 Please read the [Notes](#notes) section before using. Refer to the [API](#api) section to learn how this server can be used.
 
 ## Setup
-This application will eventually be Dockerized. For now, use the local setup instructions.
 
 ### Local Setup
 1. Clone app/ to the folder of your choice. 
@@ -20,7 +19,7 @@ This application will eventually be Dockerized. For now, use the local setup ins
 ### Docker Instructions
 
 To create and start container:
-```docker run -d --name broadlink_rm_rest_app --restart unless-stopped -p 8000:8000 -v </local/path/to/data>:/data raman325/broadlink-rm-rest-server```
+```docker run -d --name broadlink_rm_rest_app --restart unless-stopped -p 8000:8000 -v </local/path/to/data>:/app/data raman325/broadlink-rm-rest-server```
 
 #### Optional Environment Variables
 These can be added to the above command with ```-e <NAME>=<VALUE>```
