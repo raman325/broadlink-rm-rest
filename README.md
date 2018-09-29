@@ -5,6 +5,8 @@ This Python based web app provides REST interactivity with any local [Broadlink 
 
 NOTE: To connect your RM devices to your network without downloading the Broadlink app, refer to the [python-broadlink Example Use](https://github.com/mjg59/python-broadlink#example-use) instructions.
 
+Please read the [Notes](#notes) section before using.
+
 ## Setup
 This application will eventually be Dockerized. For now, use the local setup instructions.
 
@@ -59,6 +61,7 @@ Endpoint | HTTP Method | Description | Returns
 2. The blasters and target/commands databases, blasters.db and commands.db, are independent files because  they are completely unrelated. As long as you are using Broadlink RM* blasters, you can use the same commands.db for every instance of the application.
 3. The database files are in SQLite3 format and can be hand edited if needed. I use [SQLiteStudio](https://sqlitestudio.pl/index.rvt).
 4. To start from scratch, simply stop the container/app, delete the two .db files, and restart.
+5. This was tested on an RM3 Mini but should theoretically support any RM device that [python-broadlink](https://github.com/mjg59/python-broadlink) does.
 
 ## Shout outs
 1. @mjg59 for [python-broadlink](https://github.com/mjg59/python-broadlink)
