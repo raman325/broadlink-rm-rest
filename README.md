@@ -15,12 +15,12 @@ This application will eventually be Dockerized. For now, use the local setup ins
 2. Install dependencies via pip: ```pip install falcon peewee broadlink psycopg2-binary```
 3. Install the WSGI implementation of your choice (these instructions assume you are using gunicorn): ```pip install gunicorn```
 4. Navigate to the app folder
-5. Run ```gunicorn -b 0.0.0.0:8000 app:blaster_app```
+5. Run ```gunicorn -b 0.0.0.0:8000 broadlink_rm_rest_app:app```
 
 ### Docker Instructions
 
 To create and start container:
-```docker run -d --name broadlink_rm_rest_app --restart unless-stopped -p 8000:8000 -v </local/path/to/data>:/data raman325/broadlink-rm-rest-app```
+```docker run -d --name broadlink_rm_rest_app --restart unless-stopped -p 8000:8000 -v </local/path/to/data>:/data raman325/broadlink-rm-rest-server```
 
 #### Optional Environment Variables
 These can be added to the above command with ```-e <NAME>=<VALUE>```
