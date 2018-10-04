@@ -114,7 +114,7 @@ def get_new_blasters():
 
 def get_all_blasters():
     try:
-        blasters = [blaster for blaster in Blaster.select()]
+        blasters = Blaster.select()
     except Blaster.DoesNotExist:
         blasters = []
 
@@ -140,4 +140,4 @@ def get_blaster_by_mac(mac):
 def send_command_to_all_blasters(command):
     blasters = get_all_blasters()
     for blaster in blasters:
-        blaster.send_command(command.value)
+        blaster.send_command(command)
