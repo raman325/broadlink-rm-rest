@@ -8,11 +8,11 @@ import json
 ## Generic helper functions
 
 def get_blaster(attr, value):
-    if (attr == "name"):
+    if (attr.lower() == "name"):
         blaster = broadlink_rm_blaster_db.get_blaster_by_name(value)
-    elif (attr == "ip"):
+    elif (attr.lower() == "ip"):
         blaster = broadlink_rm_blaster_db.get_blaster_by_ip(value)
-    elif (attr == "mac"):
+    elif (attr.lower() == "mac"):
         blaster = broadlink_rm_blaster_db.get_blaster_by_mac(value)
     else:
         raise falcon.HTTPNotFound(description="Invalid blaster attribute. Use attribute of name, ip, or mac for Blaster.")
