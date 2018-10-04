@@ -41,7 +41,7 @@ class Blaster(BaseBlastersModel):
             }
     
     def put_name(self, name):
-        check_blaster = Blaster.get_or_none(Blaster.name == name)
+        check_blaster = Blaster.get_or_none(Blaster.name % name)
         
         if check_blaster:
             return False
@@ -94,7 +94,7 @@ def get_new_blasters():
     cnt = 0
     for blaster in blasters:
         mac_hex = enc_hex(blaster.mac)
-        check_blaster = Blaster.get_or_none(Blaster.mac_hex == mac_hex)
+        check_blaster = Blaster.get_or_none(Blaster.mac_hex % mac_hex)
         if check_blaster:
             check_blaster.ip = blaster.host[0]
             check_blaster.port = blaster.host[1]
@@ -129,13 +129,13 @@ def get_all_blasters_as_dict():
     return blasters
 
 def get_blaster_by_name(name):
-    return Blaster.get_or_none(Blaster.name == name)
+    return Blaster.get_or_none(Blaster.name % name)
 
 def get_blaster_by_ip(ip):
-    return Blaster.get_or_none(Blaster.ip == ip)
+    return Blaster.get_or_none(Blaster.ip % ip)
 
 def get_blaster_by_mac(mac):
-    return Blaster.get_or_none(Blaster.mac == mac)
+    return Blaster.get_or_none(Blaster.mac % mac)
 
 def send_command_to_all_blasters(command):
     blasters = get_all_blasters()
