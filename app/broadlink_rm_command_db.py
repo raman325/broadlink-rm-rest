@@ -24,7 +24,10 @@ class Target(BaseCommandsModel):
         return Command.get_or_none((Command.target == self) & (Command.name == name))
     
     def get_all_commands(self):
-        return [command for command in self.commands]
+        try:
+            return [command for command in self.commands]
+        except:
+            return []
 
     def get_all_commands_as_dict(self):
         return [command.to_dict() for command in self.commands]
@@ -74,7 +77,7 @@ class Command(BaseCommandsModel):
         return {"name": self.name, "value": self.value}
 
     def get_value(self):
-        return value
+        return self.value
     
     def update_name(self, new_name):
         check_command = Command.get_or_none(Command.name == new_name)
@@ -91,19 +94,15 @@ class Command(BaseCommandsModel):
 
 def get_all_targets():
     try:
-        targets = [target for target in Target.select()]
+        return [target for target in Target.select()]
     except Target.DoesNotExist:
-        targets = []
-
-    return targets
+        return []
 
 def get_all_targets_as_dict():
     try:
-        targets = [target.to_dict() for target in Target.select()]
+        return [target.to_dict() for target in Target.select()]
     except Target.DoesNotExist:
-        targets = []
-
-    return targets
+        return []
 
 def get_target(name):
     return Target.get_or_none(Target.name == name)
