@@ -11,7 +11,6 @@ def get_blaster(attr, value):
     if (attr == "name"):
         blaster = broadlink_rm_blaster_db.get_blaster_by_name(value)
     elif (attr == "ip"):
-        print value
         blaster = broadlink_rm_blaster_db.get_blaster_by_ip(value)
     elif (attr == "mac"):
         blaster = broadlink_rm_blaster_db.get_blaster_by_mac(value)
