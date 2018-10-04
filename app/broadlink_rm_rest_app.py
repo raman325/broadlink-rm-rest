@@ -80,6 +80,7 @@ class BlastersRESTResource(object):
 
         if target:
             command = target.get_command(command_name)
+
             if command:
                 broadlink_rm_blaster_db.send_command_to_all_blasters(command)
             else:
