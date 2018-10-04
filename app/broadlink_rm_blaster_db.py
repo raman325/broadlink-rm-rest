@@ -114,17 +114,17 @@ def get_new_blasters():
 
 def get_all_blasters():
     try:
-        blasters = Blaster.select()
+        return [blaster for blaster in Blaster.select()]
     except Blaster.DoesNotExist:
-        blasters = []
+        return []
 
     return blasters
 
 def get_all_blasters_as_dict():
     try:
-        blasters = [blaster.to_dict() for blaster in Blaster.select()]
+        return [blaster.to_dict() for blaster in Blaster.select()]
     except Blaster.DoesNotExist:
-        blasters = []
+        return []
 
     return blasters
 
