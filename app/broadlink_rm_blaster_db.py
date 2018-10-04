@@ -94,18 +94,21 @@ def get_new_blasters():
     cnt = 0
     for blaster in blasters:
         mac_hex = enc_hex(blaster.mac)
-        (Blaster.insert(
-            ip=blaster.host[0], 
-            port=blaster.host[1], 
-            devtype=blaster.devtype, 
-            mac_hex=mac_hex, 
-            mac=friendly_mac_from_hex(mac_hex), 
-            name=None
+        check_blaster = Blaster.get_or_none(Blaster.mac_hex == mac_hex)
+        if check_blaster:
+            check_blaster.ip = blaster.host[0]
+            check_blaster.port = blaster.host[1]
+            check_blaster.save()
+        else:
+            Blaster.create(
+                ip=blaster.host[0], 
+                port=blaster.host[1], 
+                devtype=blaster.devtype, 
+                mac_hex=mac_hex, 
+                mac=friendly_mac_from_hex(mac_hex), 
+                name=None
             )
-            .on_conflict(
-                conflict_target=[Blaster.mac], 
-                preserve=[Blaster.ip, Blaster.port]
-            ).execute())
+            cnt = cnt + 1
     
     return {"new_devices": cnt}
 
