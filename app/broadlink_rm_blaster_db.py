@@ -20,17 +20,25 @@ class Blaster(BaseBlastersModel):
     ip = TextField()
     port = IntegerField()
     devtype = IntegerField()
-    mac = TextField()
-    mac_hex = TextField()
-    name = TextField(null=True)
+    mac = TextField(unique=True)
+    mac_hex = TextField(unique=True)
+    name = TextField(unique=True, null=True)
 
     def get_device(self):
-        device = broadlink.rm(host=(self.ip, self.port), mac=bytearray(dec_hex(self.mac_hex)), devtype=self.devtype)
+        device = broadlink.rm(
+            host=(self.ip, self.port), 
+            mac=dec_hex(self.mac_hex), 
+            devtype=self.devtype
+            )
         device.auth()
         return device
 
     def to_dict(self):
-        return {"name": self.name, "ip": self.ip, "mac": self.mac}
+        return {
+            "name": self.name, 
+            "ip": self.ip, 
+            "mac": self.mac
+            }
     
     def put_name(self, name):
         check_blaster = Blaster.get_or_none(Blaster.name == name)
@@ -72,28 +80,32 @@ class Blaster(BaseBlastersModel):
         else:
             return None
 
-def convert_mac(raw):
-    return temp[10:12] + ":" + temp[8:10] + ":" + temp[6:8] + ":" + temp[4:6] + ":" + temp[2:4] + ":" + temp[0:2]
+def friendly_mac_from_hex(raw):
+    return raw[10:12] + ":" + raw[8:10] + ":" + raw[6:8] + ":" + raw[4:6] + ":" + raw[2:4] + ":" + raw[0:2]
 
 def enc_hex(raw):
-    return raw.encode('hex')
+    return str(raw).encode('hex')
 
 def dec_hex(raw):
-    return raw.decode('hex')
+    return bytearray(raw.decode('hex'))
 
 def get_new_blasters():
     blasters = list(filter(lambda blaster: blaster.get_type() == "RM2", broadlink.discover(timeout=5)))
     cnt = 0
     for blaster in blasters:
         mac_hex = enc_hex(blaster.mac)
-        tmp_blaster = Blaster.get_or_none(Blaster.mac_hex == mac_hex)
-        if tmp_blaster is None:
-            cnt = cnt + 1
-            Blaster.create(ip=blaster.host[0], port=blaster.host[1], devtype=blaster.devtype, mac_hex=mac_hex, mac=convert_mac(mac_hex), name=None)
-        else:
-            if not tmp_blaster.ip == blaster.ip:
-                tmp_blaster.ip = blaster.ip
-                tmp_blaster.save()
+        (Blaster.insert(
+            ip=blaster.host[0], 
+            port=blaster.host[1], 
+            devtype=blaster.devtype, 
+            mac_hex=mac_hex, 
+            mac=friendly_mac_from_hex(mac_hex), 
+            name=None
+            )
+            .on_conflict(
+                conflict_target=[Blaster.mac], 
+                preserve=[Blaster.ip, Blaster.port]
+            ).execute())
     
     return {"new_devices": cnt}
 

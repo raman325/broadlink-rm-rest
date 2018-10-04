@@ -15,7 +15,7 @@ class BaseCommandsModel(Model):
 
 class Target(BaseCommandsModel):
     uid = AutoField()
-    name = TextField()
+    name = TextField(unique=True)
 
     def to_dict(self):
         return {"name": self.name}
@@ -85,6 +85,9 @@ class Command(BaseCommandsModel):
             self.name = new_name
             self.save()
             return True
+    
+    class Meta:
+        indexes = ((('target', 'name'), True),)
 
 def get_all_targets():
     try:
