@@ -11,11 +11,10 @@ Please read the [Notes](#notes) section before using. Refer to the [API](#api) s
 
 ### Local Setup
 1. Clone ```app/``` to the folder of your choice. 
-2. Create ```app/data``` folder.
-3. Install dependencies via pip: ```pip install falcon peewee broadlink psycopg2-binary```
-4. Install the WSGI implementation of your choice (these instructions assume you are using gunicorn): ```pip install gunicorn```
-5. Navigate to the app folder
-6. Run ```gunicorn -b 0.0.0.0:8000 broadlink_rm_rest_app:app```
+2. Install dependencies via pip: ```pip install falcon peewee broadlink psycopg2-binary```
+3. Install the WSGI implementation of your choice (these instructions assume you are using gunicorn): ```pip install gunicorn```
+4. Navigate to the app folder
+5. Run ```gunicorn -b 0.0.0.0:8000 broadlink_rm_rest_app:app```
 
 Your databases will be available in the app/data folder.
 
