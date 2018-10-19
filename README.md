@@ -16,7 +16,7 @@ There are three objects that this application manages:
 The basic process to use this app is:
 1. Discover all *blasters* on your network. This will add them to the application's database. You can assign a friendly name to each one or use MAC/IP addresses to reference them after they have been discovered.
 2. Create a *target* for every device you want to control using your *blasters*
-3. For each *target*, you can either use a specific *blaster* to learn a *command* by calling the learn endpoint and pressing the corresponding key on your remote while pointing at the *blaster* specified, or you can create a *command* from a string if you already know the hex value of the raw *command*.
+3. For each *target*, you can either use a specific *blaster* to learn a *command* by calling the learn endpoint and pressing the corresponding key on your remote while pointing at the *blaster* specified, or you can create a *command* from a hex value if you already know the raw *command*.
 4. Repeat 2 + 3 until all *targets* and *commands* have been added to the database.
 5. From now on, you can reference *blasters*, *targets*, and *commands* by the aliases you created.
 
