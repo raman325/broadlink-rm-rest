@@ -7,6 +7,19 @@ NOTE: To connect your RM devices to your network without downloading the Broadli
 
 Please read the [Notes](#notes) section before using. Refer to the [API](#api) section to learn how this server can be used.
 
+## Intro
+There are three objects that this application manages:
+- *Blasters* are the Broadlink devices which can transmit IR/RF signals
+- *Targets* are aliases for the devices you want to control using *blasters*
+- *Commands* are aliases for raw IR/RF commands
+
+The basic process to use this app is:
+1. Discover all *blasters* on your network. This will add them to the application's database. You can assign a friendly name to each one or use MAC/IP addresses to reference them after they have been discovered.
+2. Create a *target* for every device you want to control using your *blasters*
+3. For each *target*, you can either use a specific *blaster* to learn a *command* by calling the learn endpoint and pressing the corresponding key on your remote while pointing at the *blaster* specified, or you can create a *command* from a string if you already know the hex value of the raw *command*.
+4. Repeat 2 + 3 until all *targets* and *commands* have been added to the database.
+5. From now on, you can reference *blasters*, *targets*, and *commands* by the aliases you created.
+
 ## Setup
 
 ### Local Setup
@@ -73,9 +86,7 @@ Endpoint | HTTP Method | Description
 
 
 ## TODO
-1. Docker support
-2. Test cases
-3. Authentication
-3. Case insensitivity
-4. Mechanism to export/import commands
-5. Mechanism to share commands
+1. Test cases
+2. Authentication
+3. Mechanism to export/import commands
+4. Mechanism to share commands
