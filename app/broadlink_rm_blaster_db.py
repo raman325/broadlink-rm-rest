@@ -80,6 +80,9 @@ class Blaster(BaseBlastersModel):
         else:
             return None
 
+    def is_on(self):
+        return len(list(filter(lambda blaster: enc_hex(blaster.mac) == self.mac_hex, discover_blasters()))) > 0
+
 def friendly_mac_from_hex(raw):
     return raw[10:12] + ":" + raw[8:10] + ":" + raw[6:8] + ":" + raw[4:6] + ":" + raw[2:4] + ":" + raw[0:2]
 
@@ -89,12 +92,16 @@ def enc_hex(raw):
 def dec_hex(raw):
     return bytearray(raw.decode('hex'))
 
+def discover_blasters():
+    return list(filter(lambda blaster: blaster.get_type().lower() == "rm2", broadlink.discover(timeout=5)))
+
 def get_new_blasters():
-    blasters = list(filter(lambda blaster: blaster.get_type() == "RM2", broadlink.discover(timeout=5)))
     cnt = 0
-    for blaster in blasters:
+
+    for blaster in discover_blasters():
         mac_hex = enc_hex(blaster.mac)
         check_blaster = Blaster.get_or_none(Blaster.mac_hex % mac_hex)
+
         if check_blaster:
             check_blaster.ip = blaster.host[0]
             check_blaster.port = blaster.host[1]
@@ -118,15 +125,11 @@ def get_all_blasters():
     except Blaster.DoesNotExist:
         return []
 
-    return blasters
-
 def get_all_blasters_as_dict():
     try:
         return [blaster.to_dict() for blaster in Blaster.select()]
     except Blaster.DoesNotExist:
         return []
-
-    return blasters
 
 def get_blaster_by_name(name):
     return Blaster.get_or_none(Blaster.name % name)
@@ -138,6 +141,5 @@ def get_blaster_by_mac(mac):
     return Blaster.get_or_none(Blaster.mac % mac)
 
 def send_command_to_all_blasters(command):
-    blasters = get_all_blasters()
-    for blaster in blasters:
+    for blaster in get_all_blasters():
         blaster.send_command(command)

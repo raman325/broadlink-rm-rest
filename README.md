@@ -7,6 +7,19 @@ NOTE: To connect your RM devices to your network without downloading the Broadli
 
 Please read the [Notes](#notes) section before using. Refer to the [API](#api) section to learn how this server can be used.
 
+## Intro
+There are three objects that this application manages:
+- *Blasters* are the Broadlink devices on your network which can transmit IR/RF signals
+- *Targets* are aliases for the devices you want to control using *blasters*
+- *Commands* are aliases for raw IR/RF commands
+
+The basic process to use this app is:
+1. Discover all *blasters* on your network. This will add them to the application's database. You can assign a friendly name to each one or use MAC/IP addresses to reference them after they have been discovered.
+2. Create a *target* for every device you want to control using your *blasters*
+3. For each *target*, you can either use a specific *blaster* to learn a *command* by calling the learn endpoint and pressing the corresponding key on your remote while pointing at the *blaster* specified, or you can create a *command* from a hex value if you already know the raw *command*.
+4. Repeat 2 + 3 until all *targets* and *commands* have been added to the database.
+5. From now on, you can reference *blasters*, *targets*, and *commands* by the aliases you created.
+
 ## Setup
 
 ### Local Setup
@@ -59,11 +72,10 @@ Endpoint | HTTP Method | Description
 ```/targets/<target_name>/commands/<command_name>?value=<value>``` | ```PUT``` | Sets the value command ```<command_name>``` for target ```<target_name>``` to ```<value>```. If ```<command_name>``` already exists, it will be replaced with the new value. If you plan to use this method, you should look at the code to see how values are encoded, or use existing command values in the database.
 
 ## Notes
-1. Parameters are case sensitive so it's recommended to use lowercase for everything.
-2. The blasters and target/commands databases, blasters.db and commands.db, are independent files because  they are completely unrelated. As long as you are using Broadlink RM* blasters, you can use the same commands.db for every instance of the application.
-3. The database files are in SQLite3 format and can be hand edited if needed. I use [SQLiteStudio](https://sqlitestudio.pl/index.rvt).
-4. To start from scratch, simply stop the container/app, delete the two .db files, and restart.
-5. This was tested on an RM3 Mini but should theoretically support any RM device that [python-broadlink](https://github.com/mjg59/python-broadlink) does.
+1. The blasters and target/commands databases, blasters.db and commands.db, are independent files because  they are completely unrelated. As long as you are using Broadlink RM* blasters, you can use the same commands.db for every instance of the application.
+2. The database files are in SQLite3 format and can be hand edited if needed. I use [SQLiteStudio](https://sqlitestudio.pl/index.rvt).
+3. To reset all settings/data, simply stop the container/app, delete the two .db files, and restart.
+4. This was tested on an RM3 Mini but should theoretically support any RM device that [python-broadlink](https://github.com/mjg59/python-broadlink) does.
 
 ## Shout outs
 1. @mjg59 for [python-broadlink](https://github.com/mjg59/python-broadlink)
@@ -73,9 +85,7 @@ Endpoint | HTTP Method | Description
 
 
 ## TODO
-1. Docker support
-2. Test cases
-3. Authentication
-3. Case insensitivity
-4. Mechanism to export/import commands
-5. Mechanism to share commands
+1. Test cases
+2. Authentication
+3. Mechanism to export/import commands
+4. Mechanism to share commands
