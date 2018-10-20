@@ -36,10 +36,10 @@ Your databases will be available in the app/data folder.
 To create and start container:
 ```docker run -d --name broadlink_rm_rest_app --restart unless-stopped -p 8000:8000 -v </local/path/to/data>:/app/data raman325/broadlink-rm-rest-server```
 
-#### Optional Environment Variables
-These can be added to the above command with ```-e <NAME>=<VALUE>```
+#### Environment Variables
+To override the default values, add ```-e <NAME>=<VALUE>``` for each corresponding parameter name and value.
 
-Parameter Name | Default | Description
+Parameter Name | Default Value | Description
 -------------- | ------- | -----------
 ```HOST``` | ```0.0.0.0``` | Specifies the HOST that will be used to access the REST server. Default exposes the server to the entire network. To provide local access only, use ```127.0.0.1``` or ```localhost``` instead.
 ```PORT``` | ```8000``` | Specifies the port that the container will listen on. Note that if this is changed, the ```create``` command should be updated accordingly (e.g. ```-p <Public Port>:<PORT>```).
