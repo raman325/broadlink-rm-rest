@@ -155,7 +155,7 @@ class BlasterStatusRESTResource(object):
     def on_get(self, req, resp, attr, value):
         blaster = get_blaster(attr, value)
         if not blaster.available():
-            raise falcon.HTTPGatewayTimeout("Blaster with attribute '" + attr + "' of value '" + value + "' did not respond to availability check within timeout window\n\n" + json.dumps(blaster.to_dict()))
+            raise falcon.HTTPGatewayTimeout("Blaster with attribute '" + attr + "' of value '" + value + "' did not respond to availability check within timeout window" + blaster.to_dict())
 
 # Resource to interact with a specific Target
 # /targets/{target_name}
