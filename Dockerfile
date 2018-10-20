@@ -10,14 +10,20 @@ VOLUME ["app/data"]
 # install dependencies
 RUN pip install falcon peewee broadlink gunicorn psycopg2-binary
 
+# environment vaariables
 ENV HOST "0.0.0.0"
 ENV PORT "8000"
-ENV GUNICORN_CMD_ARGS="--bind=${HOST}:${PORT}"
+ENV BROADLINK_STATUS_TIMEOUT "1"
+ENV BROADLINK_DISCOVERY_TIMEOUT "5"
 
-# Set up app directory
+# set up app directory
 COPY ./app /app
 WORKDIR /app
 
+# open $PORT
 EXPOSE $PORT
 
-ENTRYPOINT exec gunicorn broadlink_rm_rest_app:app
+# start application
+COPY ./docker-entrypoint.sh /app
+RUN ["chmod", "+x", "/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
