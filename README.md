@@ -72,10 +72,11 @@ Endpoint | HTTP Method | Description
 ```/targets/<target_name>/commands/<command_name>?value=<value>``` | ```PUT``` | Sets the value command ```<command_name>``` for target ```<target_name>``` to ```<value>```. If ```<command_name>``` already exists, it will be replaced with the new value. If you plan to use this method, you should look at the code to see how values are encoded, or use existing command values in the database.
 
 ## Notes
-1. The blasters and target/commands databases, blasters.db and commands.db, are independent files because  they are completely unrelated. As long as you are using Broadlink RM* blasters, you can use the same commands.db for every instance of the application.
-2. The database files are in SQLite3 format and can be hand edited if needed. I use [SQLiteStudio](https://sqlitestudio.pl/index.rvt).
-3. To reset all settings/data, simply stop the container/app, delete the two .db files, and restart.
-4. This was tested on an RM3 Mini but should theoretically support any RM device that [python-broadlink](https://github.com/mjg59/python-broadlink) does.
+1. Parameters are case sensitive so it's recommended to use lowercase for everything.
+2. The blasters and target/commands databases, blasters.db and commands.db, are independent files because  they are completely unrelated. As long as you are using Broadlink RM* blasters, you can use the same commands.db for every instance of the application.
+3. The database files are in SQLite3 format and can be hand edited if needed. I use [SQLiteStudio](https://sqlitestudio.pl/index.rvt).
+4. To start from scratch, simply stop the container/app, delete the two .db files, and restart.
+5. This was tested on an RM3 Mini but should theoretically support any RM device that [python-broadlink](https://github.com/mjg59/python-broadlink) does.
 
 ## Shout outs
 1. @mjg59 for [python-broadlink](https://github.com/mjg59/python-broadlink)
