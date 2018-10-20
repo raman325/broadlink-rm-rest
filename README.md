@@ -9,7 +9,7 @@ Please read the [Notes](#notes) section before using. Refer to the [API](#api) s
 
 ## Intro
 There are three objects that this application manages:
-- *Blasters* are the Broadlink devices on your network which can transmit IR/RF signals
+- *Blasters* are the Broadlink devices which can transmit IR/RF signals
 - *Targets* are aliases for the devices you want to control using *blasters*
 - *Commands* are aliases for raw IR/RF commands
 
