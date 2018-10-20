@@ -43,8 +43,8 @@ Parameter Name | Default Value | Description
 -------------- | ------- | -----------
 ```HOST``` | ```0.0.0.0``` | Specifies the HOST that will be used to access the REST server. Default exposes the server to the entire network. To provide local access only, use ```127.0.0.1``` or ```localhost``` instead.
 ```PORT``` | ```8000``` | Specifies the port that the container will listen on. Note that if this is changed, the ```create``` command should be updated accordingly (e.g. ```-p <Public Port>:<PORT>```).
-```DISCOVERY_TIMEOUT``` | ```5``` | Specifies the number of seconds (supports floats) that the application will attempt to discover new Broadlink blasters.
-```HEALTH_TIMEOUT``` | ```1``` | Specifies the number of seconds (supports floats) that the application will attempt to wait for the specified Broadlink blaster to verify health.
+```DISCOVERY_TIMEOUT``` | ```5``` | Specifies the number of seconds (supports floats) that the application will wait for blasters to respond to discovery requests.
+```HEALTH_TIMEOUT``` | ```1``` | Specifies the number of seconds (supports floats) that the application will wait for the specified Broadlink blaster to confirm availability before timing out.
 
 #### Persist DB files
 In the ```docker run``` command listed above, the DB files (commands.db and blasters.db) will be persisted in /local/path/to/data on your host server.
