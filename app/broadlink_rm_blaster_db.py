@@ -86,7 +86,7 @@ class Blaster(BaseBlastersModel):
             return None
 
     def available(self):
-        return (len(list(filter(lambda blaster: enc_hex(blaster.mac) == self.mac_hex, discover_blasters(timeout=STATUS_TIMEOUT)))) > 0)
+        return len(list(filter(lambda blaster: enc_hex(blaster.mac) == self.mac_hex, discover_blasters(timeout=STATUS_TIMEOUT)))) > 0
 
 def friendly_mac_from_hex(raw):
     return raw[10:12] + ":" + raw[8:10] + ":" + raw[6:8] + ":" + raw[4:6] + ":" + raw[2:4] + ":" + raw[0:2]
