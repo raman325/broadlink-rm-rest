@@ -22,6 +22,13 @@ The basic process to use this app is:
 
 ## Setup
 
+### Docker Instructions
+
+To create and start container:
+```docker run -d --name broadlink_rm_rest_app --restart unless-stopped -p 8000:8000 -v </local/path/to/data>:/app/data raman325/broadlink-rm-rest-server```
+
+> I have tested this on my Synology Diskstation NAS and have run into problems with my network configuration that prevented python-broadlink from being able to discover blasters. To resolve this problem, I switched from bridged network mode to host network mode by changing `-p 8000:8000` in the above command to `--network host`.
+
 ### Local Setup
 1. Clone `app/` to the folder of your choice. 
 2. Install dependencies via pip: `pip install falcon peewee broadlink psycopg2-binary`
@@ -30,13 +37,6 @@ The basic process to use this app is:
 5. Run `gunicorn -b 0.0.0.0:8000 broadlink_rm_rest_app:app`
 
 Your databases will be available in the app/data folder.
-
-### Docker Instructions
-
-To create and start container:
-```docker run -d --name broadlink_rm_rest_app --restart unless-stopped -p 8000:8000 -v </local/path/to/data>:/app/data raman325/broadlink-rm-rest-server```
-
-> I have tested this on my Synology Diskstation NAS and have run into problems with my network configuration that prevented python-broadlink from being able to discover blasters. To resolve this problem, I switched from bridged network mode to host network mode by changing `-p 8000:8000` in the above command to `--network host`.
 
 #### Environment Variables
 To override the default values, add `-e <NAME>=<VALUE>` for each corresponding parameter name and value.
