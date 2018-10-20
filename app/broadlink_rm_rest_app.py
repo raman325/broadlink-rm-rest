@@ -1,7 +1,7 @@
 # dependencies - falcon, wsgi server (waitress, uwsgi, etc)
 
-import broadlink_rm_command_db
-import broadlink_rm_blaster_db
+import broadlink_rm_command_db as command_db
+import broadlink_rm_blaster_db as blaster_db
 import falcon
 import json
 
@@ -9,11 +9,11 @@ import json
 
 def get_blaster(attr, value):
     if (attr.lower() == "name"):
-        blaster = broadlink_rm_blaster_db.get_blaster_by_name(value)
+        blaster = blaster_db.get_blaster_by_name(value)
     elif (attr.lower() == "ip"):
-        blaster = broadlink_rm_blaster_db.get_blaster_by_ip(value)
+        blaster = blaster_db.get_blaster_by_ip(value)
     elif (attr.lower() == "mac"):
-        blaster = broadlink_rm_blaster_db.get_blaster_by_mac(value)
+        blaster = blaster_db.get_blaster_by_mac(value)
     else:
         raise falcon.HTTPNotFound(description="Invalid blaster attribute. Use attribute of name, ip, or mac for Blaster.")
     
@@ -23,7 +23,7 @@ def get_blaster(attr, value):
         raise falcon.HTTPNotFound(description="Value of '" + value + "' not found for Blaster '" + attr + "' attribute")
 
 def get_target(target_name):
-    target = broadlink_rm_command_db.get_target(target_name)
+    target = command_db.get_target(target_name)
 
     if target:  
         return target
@@ -43,16 +43,16 @@ def get_command(target_name, command_name):
 ## Middleware Class to open and close DB properly
 class MiddlewareDatabaseHandler(object):
     def process_request(self, req, resp):
-        broadlink_rm_command_db.commands_db.connect()
-        broadlink_rm_command_db.Command.create_table(safe=True)
-        broadlink_rm_command_db.Target.create_table(safe=True)
+        command_db.commands_db.connect()
+        command_db.Command.create_table(safe=True)
+        command_db.Target.create_table(safe=True)
 
-        broadlink_rm_blaster_db.blasters_db.connect()
-        broadlink_rm_blaster_db.Blaster.create_table(safe=True)
+        blaster_db.blasters_db.connect()
+        blaster_db.Blaster.create_table(safe=True)
     
     def process_response(self, req, resp, resource, req_succeeded):
-        broadlink_rm_command_db.commands_db.close()
-        broadlink_rm_blaster_db.blasters_db.close()
+        command_db.commands_db.close()
+        blaster_db.blasters_db.close()
 
 # Resource to discover devices
 # /discoverblasters
@@ -61,7 +61,7 @@ class MiddlewareDatabaseHandler(object):
 
 class DiscoverRESTResource(object):
     def on_get(self, req, resp):
-        resp.body = json.dumps(broadlink_rm_blaster_db.get_new_blasters())
+        resp.body = json.dumps(blaster_db.get_new_blasters())
 
 # Resource to interact with all discovered Blasters
 # /blasters
@@ -70,19 +70,19 @@ class DiscoverRESTResource(object):
 
 class BlastersRESTResource(object):
     def on_get(self, req, resp):
-        resp.body = json.dumps({"blasters":broadlink_rm_blaster_db.get_all_blasters_as_dict()})
+        resp.body = json.dumps({"blasters":blaster_db.get_all_blasters_as_dict()})
     
     def on_post(self, req, resp):
         target_name = req.get_param("target_name", required=True)
         command_name = req.get_param("command_name", required=True)
 
-        target = broadlink_rm_command_db.get_target(target_name)
+        target = command_db.get_target(target_name)
 
         if target:
             command = target.get_command(command_name)
 
             if command:
-                broadlink_rm_blaster_db.send_command_to_all_blasters(command)
+                blaster_db.send_command_to_all_blasters(command)
             else:
                 raise  falcon.HTTPInvalidParam("Command of '" + command_name + "' does not exist for Target '" + target_name + "'.", "command_name")
 
@@ -95,7 +95,7 @@ class BlastersRESTResource(object):
 
 class TargetsRESTResource(object):
     def on_get(self, req, resp):
-        resp.body = json.dumps({"targets":broadlink_rm_command_db.get_all_targets_as_dict()})
+        resp.body = json.dumps({"targets":command_db.get_all_targets_as_dict()})
 
 # Resource to return all Commands
 # /commands
@@ -103,8 +103,8 @@ class TargetsRESTResource(object):
 
 class CommandsRESTResource(object):
     def on_get(self, req, resp):
-        targets = broadlink_rm_command_db.get_all_targets()
-        targets_to_ret =  broadlink_rm_command_db.get_all_targets_as_dict()
+        targets = command_db.get_all_targets()
+        targets_to_ret =  command_db.get_all_targets_as_dict()
         for x in range(len(targets)):
             targets_to_ret[x]["commands"] = targets[x].get_all_commands_as_dict()
 
@@ -143,7 +143,7 @@ class BlasterRESTResource(object):
             raise falcon.HTTPNotAcceptable("You must specify a {value} in /blasters/{attr}/{value} to continue")
 
         blaster = get_blaster(attr, value)
-        target = broadlink_rm_command_db.get_target(target_name)
+        target = command_db.get_target(target_name)
         
         if target:
             command = target.get_command(command_name)
@@ -166,7 +166,7 @@ class BlasterRESTResource(object):
 
 class TargetRESTResource(object):
     def on_put(self, req, resp, target_name):
-        if not broadlink_rm_command_db.add_target(target_name):
+        if not command_db.add_target(target_name):
             raise falcon.HTTPConflict(description="Target '" + target_name + "' already exists")
     
     def on_patch(self, req, resp, target_name):
@@ -176,7 +176,7 @@ class TargetRESTResource(object):
             raise falcon.HTTPConflict(description="Target '" + new_name + "' already exists")
 
     def on_delete(self, req, resp, target_name):
-        if not broadlink_rm_command_db.delete_target(target_name):
+        if not command_db.delete_target(target_name):
             raise falcon.HTTPNotFound(description="Target '" + target_name + "' not found")
 
 # Resource to get Target specific Commands
@@ -185,7 +185,7 @@ class TargetRESTResource(object):
 
 class TargetCommandsRESTResource(object):
     def on_get(self, req, resp, target_name):
-        target = broadlink_rm_command_db.get_target(target_name)
+        target = command_db.get_target(target_name)
 
         if target:
             resp.body = json.dumps({"commands":target.get_all_commands_as_dict()})
