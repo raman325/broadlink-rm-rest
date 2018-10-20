@@ -27,5 +27,6 @@ EXPOSE $PORT
 
 # start application
 # ENTRYPOINT exec gunicorn broadlink_rm_rest_app:app
-COPY ./docker-entrypoint.sh /
-ENTRYPOINT ["/docker-entrypoint.sh"]
+COPY ./docker-entrypoint.sh /app
+RUN ["chmod", "+x", "/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
