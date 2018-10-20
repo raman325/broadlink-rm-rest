@@ -16,8 +16,6 @@ ENV PORT "8000"
 ENV BROADLINK_STATUS_TIMEOUT "1"
 ENV BROADLINK_DISCOVERY_TIMEOUT "5"
 
-# ENV GUNICORN_CMD_ARGS="--bind=${HOST}:${PORT}"
-
 # set up app directory
 COPY ./app /app
 WORKDIR /app
@@ -26,7 +24,6 @@ WORKDIR /app
 EXPOSE $PORT
 
 # start application
-# ENTRYPOINT exec gunicorn broadlink_rm_rest_app:app
 COPY ./docker-entrypoint.sh /app
 RUN ["chmod", "+x", "/app/docker-entrypoint.sh"]
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
