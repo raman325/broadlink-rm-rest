@@ -1,6 +1,6 @@
 # dependencies - peewee, psycopg2-binary
 
-from peewee import *
+from peewee import SqliteDatabase, Model, AutoField, TextField, ForeignKeyField
 import json
 
 commands_db_path = 'data/commands.db'

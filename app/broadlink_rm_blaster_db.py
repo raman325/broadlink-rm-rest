@@ -1,6 +1,6 @@
 # dependencies - peewee, broadlink, psycopg2-binary
 
-from peewee import *
+from peewee import SqliteDatabase, Model, AutoField, TextField, IntegerField
 import json
 from time import sleep
 import broadlink
