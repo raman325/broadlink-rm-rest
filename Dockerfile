@@ -12,6 +12,9 @@ RUN pip install falcon peewee broadlink gunicorn psycopg2-binary
 
 ENV HOST "0.0.0.0"
 ENV PORT "8000"
+ENV BROADLINK_HEALTH_TIMEOUT "1"
+ENV BROADLINK_DISCOVERY_TIMEOUT "5"
+
 ENV GUNICORN_CMD_ARGS="--bind=${HOST}:${PORT}"
 
 # Set up app directory

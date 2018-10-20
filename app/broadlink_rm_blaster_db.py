@@ -4,6 +4,10 @@ from peewee import *
 import json
 from time import sleep
 import broadlink
+import os
+
+HEALTH_TIMEOUT = float(os.environ.get('BROADLINK_HEALTH_TIMEOUT',"1"))
+DISCOVERY_TIMEOUT = float(os.environ.get('BROADLINK_DISCOVERY_TIMEOUT',"5"))
 
 blasters_db_path = 'data/blasters.db'
 
@@ -80,8 +84,8 @@ class Blaster(BaseBlastersModel):
         else:
             return None
 
-    def is_on(self):
-        return len(list(filter(lambda blaster: enc_hex(blaster.mac) == self.mac_hex, discover_blasters()))) > 0
+    def healthy(self):
+        return len(list(filter(lambda blaster: enc_hex(blaster.mac) == self.mac_hex, discover_blasters(timeout=HEALTH_TIMEOUT)))) > 0
 
 def friendly_mac_from_hex(raw):
     return raw[10:12] + ":" + raw[8:10] + ":" + raw[6:8] + ":" + raw[4:6] + ":" + raw[2:4] + ":" + raw[0:2]
@@ -92,13 +96,13 @@ def enc_hex(raw):
 def dec_hex(raw):
     return bytearray(raw.decode('hex'))
 
-def discover_blasters():
-    return list(filter(lambda blaster: blaster.get_type().lower() == "rm2", broadlink.discover(timeout=5)))
+def discover_blasters(timeout):
+    return list(filter(lambda blaster: blaster.get_type().lower() == "rm2", broadlink.discover(timeout=timeout)))
 
 def get_new_blasters():
     cnt = 0
 
-    for blaster in discover_blasters():
+    for blaster in discover_blasters(timeout=DISCOVERY_TIMEOUT):
         mac_hex = enc_hex(blaster.mac)
         check_blaster = Blaster.get_or_none(Blaster.mac_hex % mac_hex)
 
