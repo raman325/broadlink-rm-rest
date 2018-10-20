@@ -6,7 +6,7 @@ from time import sleep
 import broadlink
 import os
 
-HEALTH_TIMEOUT = float(os.environ.get('BROADLINK_HEALTH_TIMEOUT',"1"))
+STATUS_TIMEOUT = float(os.environ.get('BROADLINK_STATUS_TIMEOUT',"1"))
 DISCOVERY_TIMEOUT = float(os.environ.get('BROADLINK_DISCOVERY_TIMEOUT',"5"))
 
 blasters_db_path = 'data/blasters.db'
@@ -41,7 +41,8 @@ class Blaster(BaseBlastersModel):
         return {
             "name": self.name, 
             "ip": self.ip, 
-            "mac": self.mac
+            "mac": self.mac,
+            "available": self.available()
             }
     
     def put_name(self, name):
@@ -84,8 +85,8 @@ class Blaster(BaseBlastersModel):
         else:
             return None
 
-    def healthy(self):
-        return len(list(filter(lambda blaster: enc_hex(blaster.mac) == self.mac_hex, discover_blasters(timeout=HEALTH_TIMEOUT)))) > 0
+    def available(self):
+        return len(list(filter(lambda blaster: enc_hex(blaster.mac) == self.mac_hex, discover_blasters(timeout=STATUS_TIMEOUT)))) > 0
 
 def friendly_mac_from_hex(raw):
     return raw[10:12] + ":" + raw[8:10] + ":" + raw[6:8] + ":" + raw[4:6] + ":" + raw[2:4] + ":" + raw[0:2]

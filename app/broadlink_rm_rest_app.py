@@ -15,12 +15,12 @@ def get_blaster(attr, value):
     elif (attr.lower() == "mac"):
         blaster = blaster_db.get_blaster_by_mac(value)
     else:
-        raise falcon.HTTPNotFound(description="Invalid blaster attribute. Use attribute of name, ip, or mac for Blaster.")
+        raise falcon.HTTPBadRequest(description="Invalid blaster attribute. Use attribute of name, ip, or mac for Blaster.")
     
     if blaster:
         return blaster
     else:
-        raise falcon.HTTPNotFound(description="Value of '" + value + "' not found for Blaster '" + attr + "' attribute")
+        raise falcon.HTTPBadRequest(description="Value of '" + value + "' not found for Blaster '" + attr + "' attribute")
 
 def get_target(target_name):
     target = command_db.get_target(target_name)
@@ -28,7 +28,7 @@ def get_target(target_name):
     if target:  
         return target
     else:
-        raise falcon.HTTPNotFound(description="Target '" + target_name + "' not found")
+        raise falcon.HTTPBadRequest(description="Target '" + target_name + "' not found")
 
 def get_command(target_name, command_name):
     command = get_target(target_name).get_command(command_name)
@@ -36,7 +36,7 @@ def get_command(target_name, command_name):
     if command:
         return command
     else:
-        raise falcon.HTTPNotFound(description="Command '" + command_name + "' not found for Target '" + target_name + "'")
+        raise falcon.HTTPBadRequest(description="Command '" + command_name + "' not found for Target '" + target_name + "'")
 
 ## REST Server block
 
@@ -84,7 +84,7 @@ class BlastersRESTResource(object):
             if command:
                 blaster_db.send_command_to_all_blasters(command)
             else:
-                raise  falcon.HTTPInvalidParam("Command of '" + command_name + "' does not exist for Target '" + target_name + "'.", "command_name")
+                raise falcon.HTTPInvalidParam("Command of '" + command_name + "' does not exist for Target '" + target_name + "'.", "command_name")
 
         else:
             raise falcon.HTTPInvalidParam("Target of '" + target_name + "' does not exist.", "target_name")
@@ -119,18 +119,10 @@ class CommandsRESTResource(object):
 
 class BlasterRESTResource(object):
     def on_get(self, req, resp, attr, value):
-        if value is None:
-            raise falcon.HTTPNotAcceptable("You must specify a {value} in /blasters/{attr}/{value} to continue")
-
         resp.body = json.dumps(get_blaster(attr, value).to_dict())
     
     def on_put(self, req, resp, attr, value):
         new_name = req.get_param("new_name", required=True)
-
-        if value is None:
-            raise falcon.HTTPNotAcceptable("You must specify a {value} in /blasters/{attr}/{value} to continue")
-
-        blaster = get_blaster(attr, value)
 
         if not get_blaster(attr, value).put_name(new_name):
             raise falcon.HTTPConflict(description="Blaster '" + new_name + "' already exists")
@@ -138,9 +130,6 @@ class BlasterRESTResource(object):
     def on_post(self, req, resp, attr, value):
         target_name = req.get_param("target_name", required=True)
         command_name = req.get_param("command_name", required=True)
-
-        if value is None:
-            raise falcon.HTTPNotAcceptable("You must specify a {value} in /blasters/{attr}/{value} to continue")
 
         blaster = get_blaster(attr, value)
         target = command_db.get_target(target_name)
@@ -151,12 +140,21 @@ class BlasterRESTResource(object):
             if command:
                 blaster.send_command(command)
             else:
-                raise falcon.HTTPNotFound(description="Command '" + command_name + "' not found for Target '" + target_name + "'")
+                raise falcon.HTTPBadRequest(description="Command '" + command_name + "' not found for Target '" + target_name + "'")
         else:
-            raise falcon.HTTPNotFound(description="Target '" + target_name + "' not found")
+            raise falcon.HTTPBadRequest(description="Target '" + target_name + "' not found")
         
     def on_delete(self, req, resp, attr, value):
         get_blaster(attr, value).delete_instance()
+
+# Resource to get status of a specific Blaster
+# /blasters/{attr}/{value}/status
+# GET returns Blaster status
+
+class BlasterStatusRESTResource(object):
+    def on_get(self, req, resp, attr, value):
+        if not get_blaster(attr, value).available():
+            raise falcon.HTTPGatewayTimeout("Blaster with attribute '" + attr + "' of value '" + value + "' did not respond to availability check within timeout window")
 
 # Resource to interact with a specific Target
 # /targets/{target_name}
@@ -177,7 +175,7 @@ class TargetRESTResource(object):
 
     def on_delete(self, req, resp, target_name):
         if not command_db.delete_target(target_name):
-            raise falcon.HTTPNotFound(description="Target '" + target_name + "' not found")
+            raise falcon.HTTPBadRequest(description="Target '" + target_name + "' not found")
 
 # Resource to get Target specific Commands
 # /targets/{target_name}/commands
@@ -190,7 +188,7 @@ class TargetCommandsRESTResource(object):
         if target:
             resp.body = json.dumps({"commands":target.get_all_commands_as_dict()})
         else:
-            raise falcon.HTTPNotFound(description="Target '" + target_name + "' not found")
+            raise falcon.HTTPBadRequest(description="Target '" + target_name + "' not found")
 
 # Resource to interact with Target specific Command
 # /targets/{target_name}/commands/{command_name}
@@ -214,7 +212,7 @@ class TargetCommandRESTResource(object):
             target.put_command(command_name, value)
         else:
             if blaster_attr is None or blaster_value is None:
-                raise falcon.HTTPNotFound(description="If attempting to learn a command, you must specify blaster_attr of ip, mac, or name and corresponding blaster_value. You can also specify the IR sequence directly with the value parameter")
+                raise falcon.HTTPBadRequest(description="If attempting to learn a command, you must specify blaster_attr of ip, mac, or name and corresponding blaster_value. You can also specify the IR sequence directly with the value parameter")
             else:
                 blaster = get_blaster(blaster_attr, blaster_value)
                 value = blaster.get_command()
@@ -240,6 +238,7 @@ app.req_options.auto_parse_form_urlencoded = True
 discover = DiscoverRESTResource()
 blasters = BlastersRESTResource()
 blaster = BlasterRESTResource()
+blaster_status = BlasterStatusRESTResource()
 targets = TargetsRESTResource()
 target = TargetRESTResource()
 target_commands = TargetCommandsRESTResource()
@@ -252,6 +251,7 @@ app.add_route('/blasters', blasters)
 app.add_route('/targets', targets)
 app.add_route('/commands', commands)
 app.add_route('/blasters/{attr}/{value}', blaster)
+app.add_route('/blasters/{attr}/{value}/status', blaster_status)
 app.add_route('/targets/{target_name}/commands/{command_name}', target_command)
 app.add_route('/targets/{target_name}/commands', target_commands)
 app.add_route('/targets/{target_name}', target)

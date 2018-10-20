@@ -50,7 +50,10 @@ Parameter Name | Default | Description
 In the ```docker run``` command listed above, the DB files (commands.db and blasters.db) will be persisted in /local/path/to/data on your host server.
 
 ## API
-NOTE: All return values are in JSON format
+- An ```HTTP 200 OK``` will be returned if the call was successful.
+- An ```HTTP 400 BAD REQUEST``` will be returned if a request was malformed or if a given resource was not found.
+- An ```HTTP 409 CONFLICT ``` will be returned if a request attempted to create/update a resource that conflicts with an existing resource.
+- All responses are in JSON format.
 
 Endpoint | HTTP Method | Description
 -------- | ----------- | -----------
@@ -61,6 +64,7 @@ Endpoint | HTTP Method | Description
 ```/blasters/<attr>/<value>``` | ```DELETE``` | Deletes specified blaster. ```<attr>``` should be either ```ip```, ```mac```, or ```name```, and ```<value>``` should be the corresponding value.
 ```/blasters/<attr>/<value>?new_name=<new_name>``` | ```PUT``` | Sets blasters name to ```<new_name>```, replacing an existing name if it already exists. ```<attr>``` should be either ```ip```, ```mac```, or ```name```, and ```<value>``` should be the corresponding value.<br><br>NOTE: If blaster lookup via IP isn't working, try to rediscover blasters using /discoverblasters which will update IP addresses to their latest.
 ```/blasters/<attr>/<value>?target_name=<target_name>&command_name=<command_name>``` | ```POST``` | Sends command ```<command_name>``` for target ```<target_name>``` via specified blaster. ```<attr>``` should be either ```ip```, ```mac```, or ```name```, and ```<value>``` should be the corresponding value.<br><br>NOTE: If blaster lookup via IP isn't working, try to rediscover blasters using /discoverblasters which will update IP addresses to their latest.
+```/blasters/<attr>/<value>/status``` | ```GET``` | Verifies availability of specified blaster. ```<attr>``` should be either ```ip```, ```mac```, or ```name```, and ```<value>``` should be the corresponding value. Returns an ```HTTP 200 OK``` if the blaster responds to status check within the ```BROADLINK_STATUS_TIMEOUT``` timeout window, else returns an ```HTTP 408 GATEWAY TIMEOUT```.
 ```/commands``` | ```GET``` | Gets all commands.
 ```/targets``` | ```GET``` | Gets all targets.
 ```/targets/<target_name>``` | ```PUT``` | Creates target ```<target_name>```.
@@ -70,7 +74,7 @@ Endpoint | HTTP Method | Description
 ```/targets/<target_name>/commands/<command_name>``` | ```GET``` | Gets command ```<command_name>``` for target ```<target_name>```.
 ```/targets/<target_name>/commands/<command_name>``` | ```DELETE``` | Deletes command ```<command_name>``` for target ```<target_name>```.
 ```/targets/<target_name>/commands/<command_name>?new_name=<new_name>``` | ```PATCH``` | Updates command name of  ```<command_name>``` for target ```<target_name>``` to ```<new_name>```.
-```/targets/<target_name>/commands/<command_name>?blaster_attr=<blaster_attr>&blaster_value=<blaster_value>``` | ```PUT``` | Learns command ```<command_name>``` for target ```<target_name>``` using specified blaster. ```<blaster_attr>``` should be either ```ip```, ```mac```, or ```name``` and ```<blaster_value>``` should be the corresponding value. If ```<command_name>``` already exists, it will be replaced with the new value. The app will wait for ~10 seconds to detect an input signal from the blaster specified before timing out.<br><br>NOTE: If blaster lookup via IP isn't working, try to rediscover blasters using /discoverblasters which will update IP addresses to their latest.
+```/targets/<target_name>/commands/<command_name>?blaster_attr=<blaster_attr>&blaster_value=<blaster_value>``` | ```PUT``` | Learns command ```<command_name>``` for target ```<target_name>``` using specified blaster. ```<blaster_attr>``` should be either ```ip```, ```mac```, or ```name``` and ```<blaster_value>``` should be the corresponding value. If ```<command_name>``` already exists, it will be replaced with the new value. Waits for ~10 seconds to detect an input signal from the blaster specified before timing out and consequently returning an ```HTTP 408 GATEWAY TIMEOUT```.<br><br>NOTE: If blaster lookup via IP isn't working, try to rediscover blasters using /discoverblasters which will update IP addresses to their latest.
 ```/targets/<target_name>/commands/<command_name>?value=<value>``` | ```PUT``` | Sets the value command ```<command_name>``` for target ```<target_name>``` to ```<value>```. If ```<command_name>``` already exists, it will be replaced with the new value. If you plan to use this method, you should look at the code to see how values are encoded, or use existing command values in the database.
 
 ## Notes
