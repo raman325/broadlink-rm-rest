@@ -256,6 +256,7 @@ app.add_route('/targets/{target_name}/commands/{command_name}', target_command)
 app.add_route('/targets/{target_name}/commands', target_commands)
 app.add_route('/targets/{target_name}', target)
 
+# Initialize blasters DB by discovering blasters
 blaster_db.blasters_db.connect()
 blaster_db.Blaster.create_table(safe=True)
 blaster_db.get_new_blasters(timeout=3)
