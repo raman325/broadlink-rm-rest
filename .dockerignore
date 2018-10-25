@@ -1,3 +1,2 @@
 app/data/*.db
-app/*.db
 app/*.pyc
