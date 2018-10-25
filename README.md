@@ -25,7 +25,7 @@ The basic process to use this app is:
 ### Docker Instructions
 
 To create and start container:
-```docker run -d --name broadlink_rm_rest_app --restart unless-stopped -p 8000:8000 -v </local/path/to/data>:/app/data raman325/broadlink-rm-rest-server```
+```docker run -d --name broadlink_rm_rest --restart unless-stopped -p 8000:8000 -v </local/path/to/data>:/app/data raman325/broadlink-rm-rest```
 
 > I have tested this on my Synology Diskstation NAS and have run into problems with my network configuration that prevented python-broadlink from being able to discover blasters. To resolve this problem, I switched from bridged network mode to host network mode by changing `-p 8000:8000` in the above command to `--network host`.
 
@@ -34,7 +34,7 @@ To create and start container:
 2. Install dependencies via pip: `pip install falcon peewee broadlink psycopg2-binary`
 3. Install the WSGI implementation of your choice (these instructions assume you are using gunicorn): `pip install gunicorn`
 4. Navigate to the app folder
-5. Run `gunicorn -b 0.0.0.0:8000 broadlink_rm_rest_app:app`
+5. Run `gunicorn -b 0.0.0.0:8000 app:app`
 
 Your databases will be available in the app/data folder.
 
