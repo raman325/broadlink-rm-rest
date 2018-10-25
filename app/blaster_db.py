@@ -100,10 +100,10 @@ def dec_hex(raw):
 def discover_blasters(timeout):
     return list(filter(lambda blaster: blaster.get_type().lower() == "rm2", broadlink.discover(timeout=timeout)))
 
-def get_new_blasters():
+def get_new_blasters(timeout=DISCOVERY_TIMEOUT):
     cnt = 0
 
-    for blaster in discover_blasters(timeout=DISCOVERY_TIMEOUT):
+    for blaster in discover_blasters(timeout=timeout):
         mac_hex = enc_hex(blaster.mac)
         check_blaster = Blaster.get_or_none(Blaster.mac_hex % mac_hex)
 

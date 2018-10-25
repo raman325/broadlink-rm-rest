@@ -255,3 +255,8 @@ app.add_route('/blasters/{attr}/{value}/status', blaster_status)
 app.add_route('/targets/{target_name}/commands/{command_name}', target_command)
 app.add_route('/targets/{target_name}/commands', target_commands)
 app.add_route('/targets/{target_name}', target)
+
+blaster_db.blasters_db.connect()
+blaster_db.Blaster.create_table(safe=True)
+blaster_db.get_new_blasters(timeout=3)
+blaster_db.blasters_db.close()
