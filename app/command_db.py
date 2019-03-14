@@ -22,7 +22,7 @@ class Target(BaseCommandsModel):
 
     def get_command(self, name):
         return Command.get_or_none((Command.target == self) & (Command.name % name))
-    
+
     def get_all_commands(self):
         try:
             return [command for command in self.commands]
@@ -31,32 +31,32 @@ class Target(BaseCommandsModel):
 
     def get_all_commands_as_dict(self):
         return [command.to_dict() for command in self.commands]
-    
+
     def add_command(self, name, value):
-        
+
         if Command.get_or_none((Command.target == self) & (Command.name % name)):
             return False
         else:
             Command.create(target=self, name=name, value=value)
             return True
-    
+
     def put_command(self, name, value):
         command = Command.get_or_none((Command.target == self) & (Command.name % name))
-        
+
         if command:
             command.value = value
             command.save()
         else:
             Command.create(target=self, name=name, value=value)
-    
+
     def delete_command(self, name):
         command = Command.get_or_none((Command.target == self) & (Command.name % name))
-        
+
         if command:
             return bool(command.delete_instance())
         else:
             return False
-    
+
     def update_name(self, new_name):
         check_target = Target.get_or_none(Target.name % new_name)
 
@@ -78,7 +78,7 @@ class Command(BaseCommandsModel):
 
     def get_value(self):
         return self.value
-    
+
     def update_name(self, new_name):
         check_command = Command.get_or_none(Command.name % new_name)
 
@@ -88,7 +88,7 @@ class Command(BaseCommandsModel):
             self.name = new_name
             self.save()
             return True
-    
+
     class Meta:
         indexes = ((('target', 'name'), True),)
 

@@ -78,7 +78,7 @@ class Blaster(BaseBlastersModel):
 
         if value:
             value = enc_hex(value)
-            if value.replace("0","") == "":
+            if value.replace(b'\x00',b'') == b'':
                 return None
             else:
                 return value
