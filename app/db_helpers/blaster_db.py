@@ -1,4 +1,4 @@
-# dependencies - peewee, broadlink, psycopg2-binary
+# dependencies - peewee, broadlink
 
 from peewee import SqliteDatabase, Model, AutoField, TextField, IntegerField
 import json

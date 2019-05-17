@@ -8,7 +8,7 @@ FROM python:3-alpine
 VOLUME ["app/data"]
 
 # install dependencies
-RUN pip install falcon peewee broadlink gunicorn
+RUN pip3 install falcon peewee broadlink gunicorn
 
 # environment vaariables
 ENV HOST "0.0.0.0"
