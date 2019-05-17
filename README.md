@@ -31,7 +31,7 @@ To create and start container:
 
 ### Local Setup
 1. Clone `app/` to the folder of your choice. 
-2. Install dependencies via pip: `pip3 install falcon peewee broadlink psycopg2-binary`
+2. Install dependencies via pip: `pip3 install falcon peewee broadlink`
 3. Install the WSGI implementation of your choice (these instructions assume you are using gunicorn): `pip3 install gunicorn`
 4. Navigate to the app folder
 5. Run `gunicorn -b 0.0.0.0:8000 app:app`

@@ -1,6 +1,6 @@
 # dependencies - falcon, wsgi server (waitress, uwsgi, etc)
 
-from .db_helpers import *
+from db_helpers import *
 import falcon
 import json
 

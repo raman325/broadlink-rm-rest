@@ -8,7 +8,7 @@ FROM python:2.7-slim-stretch
 VOLUME ["app/data"]
 
 # install dependencies
-RUN pip install falcon peewee broadlink gunicorn psycopg2-binary
+RUN pip install falcon peewee broadlink gunicorn
 
 # environment vaariables
 ENV HOST "0.0.0.0"
