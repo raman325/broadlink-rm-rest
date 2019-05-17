@@ -31,8 +31,8 @@ To create and start container:
 
 ### Local Setup
 1. Clone `app/` to the folder of your choice. 
-2. Install dependencies via pip: `pip install falcon peewee broadlink psycopg2-binary`
-3. Install the WSGI implementation of your choice (these instructions assume you are using gunicorn): `pip install gunicorn`
+2. Install dependencies via pip: `pip3 install falcon peewee broadlink psycopg2-binary`
+3. Install the WSGI implementation of your choice (these instructions assume you are using gunicorn): `pip3 install gunicorn`
 4. Navigate to the app folder
 5. Run `gunicorn -b 0.0.0.0:8000 app:app`
 
@@ -59,7 +59,7 @@ In the `docker run` command listed above, the DB files (commands.db and blasters
 
 Endpoint | HTTP Method | Description
 -------- | ----------- | -----------
-`/discoverblasters` | `GET` | Discovers all new Broadlink RM blasters and adds them to the database (Note: blasters must be in the database before they can be used by the application). Blasters will be added to the database unnamed, so it's recommended to use `PUT /blasters/<attr>/<value>?new_name=<new_name>` to set a friendly name for each blaster.<br><br>NOTE: Discovery will also update blaster IP addresses when applicable.
+`/discoverblasters` | `GET` | Discovers all new Broadlink RM blasters and adds them to the database (Note: blasters must be in the database before they can be used by the application, and they must be on and connected to the local network to be discoverable. You can add the Broadlink devices to your network using the instructions [here](https://github.com/mjg59/python-broadlink#example-use)). Blasters will be added to the database unnamed, so it's recommended to use `PUT /blasters/<attr>/<value>?new_name=<new_name>` to set a friendly name for each blaster.<br><br>NOTE: Discovery will also update blaster IP addresses when applicable.
 `/blasters` | `GET` | Gets all blasters (only returns blasters that have already been discovered once). | 
 `/blasters?target_name=<target_name>&command_name=<command_name>` | `POST` | Sends command `<command_name>` for target `<target_name>` to all blasters.
 `/blasters/<attr>/<value>` | `GET` | Gets specified blaster. `<attr>` should be either `ip`, `mac`, or `name`, and `<value>` should be the corresponding value.

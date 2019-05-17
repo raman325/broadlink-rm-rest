@@ -5,6 +5,7 @@ import json
 from time import sleep
 import broadlink
 import os
+import codecs
 
 STATUS_TIMEOUT = float(os.environ.get('BROADLINK_STATUS_TIMEOUT',"1"))
 DISCOVERY_TIMEOUT = float(os.environ.get('BROADLINK_DISCOVERY_TIMEOUT',"5"))
@@ -92,10 +93,10 @@ def friendly_mac_from_hex(raw):
     return raw[10:12] + ":" + raw[8:10] + ":" + raw[6:8] + ":" + raw[4:6] + ":" + raw[2:4] + ":" + raw[0:2]
 
 def enc_hex(raw):
-    return str(raw).encode('hex')
+    return codecs.encode(raw, encoding='hex').decode()
 
 def dec_hex(raw):
-    return bytearray(raw.decode('hex'))
+    return bytearray(codecs.decode(raw, encoding='hex'))
 
 def discover_blasters(timeout):
     return list(filter(lambda blaster: blaster.get_type().lower() == "rm2", broadlink.discover(timeout=timeout)))
