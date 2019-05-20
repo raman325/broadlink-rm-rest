@@ -2,7 +2,7 @@
 # 
 #
 
-FROM python:3-alpine
+FROM python:3-slim
 
 # create volume for SQLite DB files
 VOLUME ["app/data"]
