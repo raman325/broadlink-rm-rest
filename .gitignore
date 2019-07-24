@@ -3,3 +3,5 @@ app/*.pyc
 !app/data/
 pytype_output
 .vscode
+.idea
+venv
