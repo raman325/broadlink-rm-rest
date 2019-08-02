@@ -8,11 +8,13 @@ FROM python:3-alpine
 VOLUME ["app/data"]
 
 RUN apk add --no-cache make build-base
-#RUN apt-get update \
-#    && apt-get install -y gcc
 
 # install dependencies
 RUN pip3 install falcon peewee gunicorn broadlink==0.10
+
+# remove unneded packages
+RUN apk del make build-base
+RUN apt-get autoremove autoclean
 
 # environment vaariables
 ENV HOST "0.0.0.0"
