@@ -8,19 +8,20 @@ FROM python:3-alpine
 VOLUME ["app/data"]
 
 # Install dependencies to build packages
-RUN apk add --no-cache --virtual .build-deps make build-base \
+RUN apk add --no-cache --virtual .build-deps build-base \
 ## Install dependencies needed for project
     && pip3 install falcon peewee gunicorn broadlink==0.10 \
-## Remove all unnecesarry packages
-    &&  runDeps="$( \
-            scanelf --needed --nobanner --recursive /usr/local \
-                    | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
-                    | sort -u \
-                    | xargs -r apk info --installed \
-                    | sort -u \
-            )" \
+    && runDeps="$( \
+        scanelf --needed --nobanner --recursive /usr/local \
+                | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+                | sort -u \
+                | xargs -r apk info --installed \
+                | sort -u \
+    )" \
     && apk add --virtual .rundeps $runDeps \
-    && apk del make build-base && \
+    && apk del .build-deps
+
+RUN apk del build-base && \
             rm -rf /usr/share/locale/* && \
             rm -rf /var/cache/debconf/*-old && \
             rm -rf /var/lib/apt/lists/* /var/lib/dpkg   && \
