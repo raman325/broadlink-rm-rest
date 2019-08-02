@@ -78,11 +78,10 @@ class Blaster(BaseBlastersModel):
             value = device.check_data()
 
         if value:
-            value = enc_hex(value)
-            if value.replace(b'\x00',b'') == b'':
+            if value.replace(b'\x00', b'') == b'':
                 return None
             else:
-                return value
+                return enc_hex(value)
         else:
             return None
 
