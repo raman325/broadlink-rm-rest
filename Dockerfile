@@ -7,10 +7,12 @@ FROM python:3-alpine
 # create volume for SQLite DB files
 VOLUME ["app/data"]
 
+ADD requirements.txt /
+RUN cd  && ls
 # Install dependencies to build packages
 RUN apk add --no-cache --virtual .build-deps build-base \
 ## Install dependencies needed for project
-    && pip3 install falcon peewee gunicorn broadlink==0.10 \
+    && pip3 install -r requirements.txt \
     && runDeps="$( \
         scanelf --needed --nobanner --recursive /usr/local \
                 | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
