@@ -7,12 +7,28 @@ FROM python:3-alpine
 # create volume for SQLite DB files
 VOLUME ["app/data"]
 
-RUN apk add --no-cache make build-base
-#RUN apt-get update \
-#    && apt-get install -y gcc
+# Install dependencies to build packages
+RUN apk add --no-cache --virtual .build-deps build-base \
+## Install dependencies needed for project
+    && pip3 install falcon peewee gunicorn broadlink==0.10 \
+    && runDeps="$( \
+        scanelf --needed --nobanner --recursive /usr/local \
+                | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+                | sort -u \
+                | xargs -r apk info --installed \
+                | sort -u \
+    )" \
+    && apk add --virtual .rundeps $runDeps \
+    && apk del .build-deps
 
-# install dependencies
-RUN pip3 install falcon peewee gunicorn broadlink==0.10
+RUN apk del build-base && \
+            rm -rf /usr/share/locale/* && \
+            rm -rf /var/cache/debconf/*-old && \
+            rm -rf /var/lib/apt/lists/* /var/lib/dpkg   && \
+            rm -rf /usr/share/doc/* && \
+            rm -rf /usr/share/man/?? && \
+            rm -rf /usr/share/man/??_*
+
 
 # environment vaariables
 ENV HOST "0.0.0.0"
