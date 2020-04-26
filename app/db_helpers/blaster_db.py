@@ -1,24 +1,25 @@
 # dependencies - peewee, broadlink
 
 from peewee import SqliteDatabase, Model, AutoField, TextField, IntegerField
-import json
 from time import sleep
 import broadlink
 import os
 import codecs
 
-STATUS_TIMEOUT = float(os.environ.get('BROADLINK_STATUS_TIMEOUT',"1"))
-DISCOVERY_TIMEOUT = float(os.environ.get('BROADLINK_DISCOVERY_TIMEOUT',"5"))
+STATUS_TIMEOUT = float(os.environ.get("BROADLINK_STATUS_TIMEOUT", "1"))
+DISCOVERY_TIMEOUT = float(os.environ.get("BROADLINK_DISCOVERY_TIMEOUT", "5"))
 
-blasters_db_path = 'data/blasters.db'
+blasters_db_path = "data/blasters.db"
 
 blasters_db = SqliteDatabase(blasters_db_path)
 
 #### Blaster DB classes and functions
 
+
 class BaseBlastersModel(Model):
     class Meta:
         database = blasters_db
+
 
 class Blaster(BaseBlastersModel):
     uid = AutoField()
@@ -31,39 +32,37 @@ class Blaster(BaseBlastersModel):
 
     def get_device(self):
         device = broadlink.rm(
-            host=(self.ip, self.port), 
-            mac=dec_hex(self.mac_hex), 
-            devtype=self.devtype
-            )
+            host=(self.ip, self.port), mac=dec_hex(self.mac_hex), devtype=self.devtype
+        )
         device.auth()
         return device
 
     def to_dict(self):
         return {
-            "name": self.name, 
-            "ip": self.ip, 
+            "name": self.name,
+            "ip": self.ip,
             "mac": self.mac,
-            "available": self.available()
-            }
-    
+            "available": self.available(),
+        }
+
     def put_name(self, name):
         check_blaster = Blaster.get_or_none(Blaster.name % name)
-        
+
         if check_blaster:
             return False
         else:
             self.name = name
             self.save()
             return True
-    
+
     def send_command(self, command):
         device = self.get_device()
         device.send_data(dec_hex(command.value))
-    
+
     def send_raw(self, value):
         device = self.get_device()
         device.send_data(dec_hex(value))
-    
+
     def get_command(self):
         device = self.get_device()
         device.enter_learning()
@@ -79,7 +78,7 @@ class Blaster(BaseBlastersModel):
 
         if value:
             value = enc_hex(value)
-            if value.replace(b'\x00',b'') == b'':
+            if value.replace(b"\x00", b"") == b"":
                 return None
             else:
                 return value
@@ -87,19 +86,51 @@ class Blaster(BaseBlastersModel):
             return None
 
     def available(self):
-        return len(list(filter(lambda blaster: enc_hex(blaster.mac) == self.mac_hex, discover_blasters(timeout=STATUS_TIMEOUT)))) > 0
+        return (
+            len(
+                list(
+                    filter(
+                        lambda blaster: enc_hex(blaster.mac) == self.mac_hex,
+                        discover_blasters(timeout=STATUS_TIMEOUT),
+                    )
+                )
+            )
+            > 0
+        )
+
 
 def friendly_mac_from_hex(raw):
-    return raw[10:12] + ":" + raw[8:10] + ":" + raw[6:8] + ":" + raw[4:6] + ":" + raw[2:4] + ":" + raw[0:2]
+    return (
+        raw[10:12]
+        + ":"
+        + raw[8:10]
+        + ":"
+        + raw[6:8]
+        + ":"
+        + raw[4:6]
+        + ":"
+        + raw[2:4]
+        + ":"
+        + raw[0:2]
+    )
+
 
 def enc_hex(raw):
-    return codecs.encode(raw, encoding='hex').decode()
+    return codecs.encode(raw, encoding="hex").decode()
+
 
 def dec_hex(raw):
-    return bytearray(codecs.decode(raw, encoding='hex'))
+    return bytearray(codecs.decode(raw, encoding="hex"))
+
 
 def discover_blasters(timeout):
-    return list(filter(lambda blaster: blaster.get_type().lower() == "rm2", broadlink.discover(timeout=timeout)))
+    return list(
+        filter(
+            lambda blaster: blaster.get_type().lower() == "rm2",
+            broadlink.discover(timeout=timeout),
+        )
+    )
+
 
 def get_new_blasters(timeout=DISCOVERY_TIMEOUT):
     cnt = 0
@@ -114,16 +145,17 @@ def get_new_blasters(timeout=DISCOVERY_TIMEOUT):
             check_blaster.save()
         else:
             Blaster.create(
-                ip=blaster.host[0], 
-                port=blaster.host[1], 
-                devtype=blaster.devtype, 
-                mac_hex=mac_hex, 
-                mac=friendly_mac_from_hex(mac_hex), 
-                name=None
+                ip=blaster.host[0],
+                port=blaster.host[1],
+                devtype=blaster.devtype,
+                mac_hex=mac_hex,
+                mac=friendly_mac_from_hex(mac_hex),
+                name=None,
             )
             cnt += 1
 
     return {"new_devices": cnt}
+
 
 def get_all_blasters():
     try:
@@ -131,20 +163,25 @@ def get_all_blasters():
     except Blaster.DoesNotExist:
         return []
 
+
 def get_all_blasters_as_dict():
     try:
         return [blaster.to_dict() for blaster in Blaster.select()]
     except Blaster.DoesNotExist:
         return []
 
+
 def get_blaster_by_name(name):
     return Blaster.get_or_none(Blaster.name % name)
+
 
 def get_blaster_by_ip(ip):
     return Blaster.get_or_none(Blaster.ip % ip)
 
+
 def get_blaster_by_mac(mac):
     return Blaster.get_or_none(Blaster.mac % mac)
+
 
 def send_command_to_all_blasters(command):
     for blaster in get_all_blasters():

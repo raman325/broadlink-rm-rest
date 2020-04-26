@@ -1,17 +1,18 @@
 # dependencies - peewee
 
 from peewee import SqliteDatabase, Model, AutoField, TextField, ForeignKeyField
-import json
 
-commands_db_path = 'data/commands.db'
+commands_db_path = "data/commands.db"
 
 commands_db = SqliteDatabase(commands_db_path)
 
 ## Commands DB classes and functions
 
+
 class BaseCommandsModel(Model):
     class Meta:
         database = commands_db
+
 
 class Target(BaseCommandsModel):
     uid = AutoField()
@@ -67,6 +68,7 @@ class Target(BaseCommandsModel):
             self.save()
             return True
 
+
 class Command(BaseCommandsModel):
     uid = AutoField()
     target = ForeignKeyField(Target, backref="commands")
@@ -90,7 +92,8 @@ class Command(BaseCommandsModel):
             return True
 
     class Meta:
-        indexes = ((('target', 'name'), True),)
+        indexes = ((("target", "name"), True),)
+
 
 def get_all_targets():
     try:
@@ -98,14 +101,17 @@ def get_all_targets():
     except Target.DoesNotExist:
         return []
 
+
 def get_all_targets_as_dict():
     try:
         return [target.to_dict() for target in Target.select()]
     except Target.DoesNotExist:
         return []
 
+
 def get_target(name):
     return Target.get_or_none(Target.name % name)
+
 
 def add_target(name):
     if Target.get_or_none(Target.name % name):
@@ -113,6 +119,7 @@ def add_target(name):
     else:
         Target.create(name=name)
         return True
+
 
 def delete_target(name):
     target = Target.get_or_none(Target.name % name)

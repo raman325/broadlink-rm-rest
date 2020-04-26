@@ -1,33 +1,46 @@
 # dependencies - falcon, wsgi server (waitress, uwsgi, etc)
 
-from db_helpers import *
+from .db_helpers import blaster_db, command_db
 import falcon
 import json
 
 ## Generic helper functions
 
+
 def get_blaster(attr, value):
-    if (attr.lower() == "name"):
+    if attr.lower() == "name":
         blaster = blaster_db.get_blaster_by_name(value)
-    elif (attr.lower() == "ip"):
+    elif attr.lower() == "ip":
         blaster = blaster_db.get_blaster_by_ip(value)
-    elif (attr.lower() == "mac"):
+    elif attr.lower() == "mac":
         blaster = blaster_db.get_blaster_by_mac(value)
     else:
-        raise falcon.HTTPBadRequest(description="Invalid blaster attribute. Use attribute of name, ip, or mac for Blaster.")
-    
+        raise falcon.HTTPBadRequest(
+            description="Invalid blaster attribute. Use attribute of name, ip, or mac for Blaster."
+        )
+
     if blaster:
         return blaster
     else:
-        raise falcon.HTTPBadRequest(description="Value of '" + value + "' not found for Blaster '" + attr + "' attribute")
+        raise falcon.HTTPBadRequest(
+            description="Value of '"
+            + value
+            + "' not found for Blaster '"
+            + attr
+            + "' attribute"
+        )
+
 
 def get_target(target_name):
     target = command_db.get_target(target_name)
 
-    if target:  
+    if target:
         return target
     else:
-        raise falcon.HTTPBadRequest(description="Target '" + target_name + "' not found")
+        raise falcon.HTTPBadRequest(
+            description="Target '" + target_name + "' not found"
+        )
+
 
 def get_command(target_name, command_name):
     command = get_target(target_name).get_command(command_name)
@@ -35,7 +48,14 @@ def get_command(target_name, command_name):
     if command:
         return command
     else:
-        raise falcon.HTTPBadRequest(description="Command '" + command_name + "' not found for Target '" + target_name + "'")
+        raise falcon.HTTPBadRequest(
+            description="Command '"
+            + command_name
+            + "' not found for Target '"
+            + target_name
+            + "'"
+        )
+
 
 ## REST Server block
 
@@ -48,29 +68,33 @@ class MiddlewareDatabaseHandler(object):
 
         blaster_db.blasters_db.connect()
         blaster_db.Blaster.create_table(safe=True)
-    
+
     def process_response(self, req, resp, resource, req_succeeded):
         command_db.commands_db.close()
         blaster_db.blasters_db.close()
+
 
 # Resource to discover devices
 # /discoverblasters
 # GET adds all newly discovered devices to DB and returns number of new RM devices found, required when adding a new device to the network
 # NOTE: Only retains devices of type RM
 
+
 class DiscoverRESTResource(object):
     def on_get(self, req, resp):
         resp.body = json.dumps(blaster_db.get_new_blasters())
+
 
 # Resource to interact with all discovered Blasters
 # /blasters
 # GET returns Blasters list
 # POST sends command to all Blasters
 
+
 class BlastersRESTResource(object):
     def on_get(self, req, resp):
-        resp.body = json.dumps({"blasters":blaster_db.get_all_blasters_as_dict()})
-    
+        resp.body = json.dumps({"blasters": blaster_db.get_all_blasters_as_dict()})
+
     def on_post(self, req, resp):
         target_name = req.get_param("target_name", required=True)
         command_name = req.get_param("command_name", required=True)
@@ -83,31 +107,45 @@ class BlastersRESTResource(object):
             if command:
                 blaster_db.send_command_to_all_blasters(command)
             else:
-                raise falcon.HTTPInvalidParam("Command of '" + command_name + "' does not exist for Target '" + target_name + "'.", "command_name")
+                raise falcon.HTTPInvalidParam(
+                    "Command of '"
+                    + command_name
+                    + "' does not exist for Target '"
+                    + target_name
+                    + "'.",
+                    "command_name",
+                )
 
         else:
-            raise falcon.HTTPInvalidParam("Target of '" + target_name + "' does not exist.", "target_name")
+            raise falcon.HTTPInvalidParam(
+                "Target of '" + target_name + "' does not exist.", "target_name"
+            )
+
 
 # Resource to return all Targets
 # /targets
 # GET returns all Targets
 
+
 class TargetsRESTResource(object):
     def on_get(self, req, resp):
-        resp.body = json.dumps({"targets":command_db.get_all_targets_as_dict()})
+        resp.body = json.dumps({"targets": command_db.get_all_targets_as_dict()})
+
 
 # Resource to return all Commands
 # /commands
 # GET returns all Commands
 
+
 class CommandsRESTResource(object):
     def on_get(self, req, resp):
         targets = command_db.get_all_targets()
-        targets_to_ret =  command_db.get_all_targets_as_dict()
+        targets_to_ret = command_db.get_all_targets_as_dict()
         for x in range(len(targets)):
             targets_to_ret[x]["commands"] = targets[x].get_all_commands_as_dict()
 
-        resp.body = json.dumps({"targets":targets_to_ret})
+        resp.body = json.dumps({"targets": targets_to_ret})
+
 
 # Resource to interact with a specific Blaster
 # /blasters/{attr}/{value}
@@ -116,44 +154,64 @@ class CommandsRESTResource(object):
 # POST sends command to Blaster
 # DELETE deletes Blaster
 
+
 class BlasterRESTResource(object):
     def on_get(self, req, resp, attr, value):
         resp.body = json.dumps(get_blaster(attr, value).to_dict())
-    
+
     def on_put(self, req, resp, attr, value):
         new_name = req.get_param("new_name", required=True)
 
         if not get_blaster(attr, value).put_name(new_name):
-            raise falcon.HTTPConflict(description="Blaster '" + new_name + "' already exists")
-    
+            raise falcon.HTTPConflict(
+                description="Blaster '" + new_name + "' already exists"
+            )
+
     def on_post(self, req, resp, attr, value):
         target_name = req.get_param("target_name", required=True)
         command_name = req.get_param("command_name", required=True)
 
         blaster = get_blaster(attr, value)
         target = command_db.get_target(target_name)
-        
+
         if target:
             command = target.get_command(command_name)
 
             if command:
                 blaster.send_command(command)
             else:
-                raise falcon.HTTPBadRequest(description="Command '" + command_name + "' not found for Target '" + target_name + "'")
+                raise falcon.HTTPBadRequest(
+                    description="Command '"
+                    + command_name
+                    + "' not found for Target '"
+                    + target_name
+                    + "'"
+                )
         else:
-            raise falcon.HTTPBadRequest(description="Target '" + target_name + "' not found")
-        
+            raise falcon.HTTPBadRequest(
+                description="Target '" + target_name + "' not found"
+            )
+
     def on_delete(self, req, resp, attr, value):
         get_blaster(attr, value).delete_instance()
+
 
 # Resource to get status of a specific Blaster
 # /blasters/{attr}/{value}/status
 # GET returns Blaster status
 
+
 class BlasterStatusRESTResource(object):
     def on_get(self, req, resp, attr, value):
         if not get_blaster(attr, value).available():
-            raise falcon.HTTPGatewayTimeout("Blaster with attribute '" + attr + "' of value '" + value + "' did not respond to availability check within timeout window")
+            raise falcon.HTTPGatewayTimeout(
+                "Blaster with attribute '"
+                + attr
+                + "' of value '"
+                + value
+                + "' did not respond to availability check within timeout window"
+            )
+
 
 # Resource to interact with a specific Target
 # /targets/{target_name}
@@ -161,33 +219,45 @@ class BlasterStatusRESTResource(object):
 # PATCH updates target
 # DELETE deletes target and associated commands
 
+
 class TargetRESTResource(object):
     def on_put(self, req, resp, target_name):
         if not command_db.add_target(target_name):
-            raise falcon.HTTPConflict(description="Target '" + target_name + "' already exists")
-    
+            raise falcon.HTTPConflict(
+                description="Target '" + target_name + "' already exists"
+            )
+
     def on_patch(self, req, resp, target_name):
         new_name = req.get_param("new_name", required=True)
 
         if not get_target(target_name).update_name(new_name):
-            raise falcon.HTTPConflict(description="Target '" + new_name + "' already exists")
+            raise falcon.HTTPConflict(
+                description="Target '" + new_name + "' already exists"
+            )
 
     def on_delete(self, req, resp, target_name):
         if not command_db.delete_target(target_name):
-            raise falcon.HTTPBadRequest(description="Target '" + target_name + "' not found")
+            raise falcon.HTTPBadRequest(
+                description="Target '" + target_name + "' not found"
+            )
+
 
 # Resource to get Target specific Commands
 # /targets/{target_name}/commands
 # GET returns all Commands for Target 'target_name'
+
 
 class TargetCommandsRESTResource(object):
     def on_get(self, req, resp, target_name):
         target = command_db.get_target(target_name)
 
         if target:
-            resp.body = json.dumps({"commands":target.get_all_commands_as_dict()})
+            resp.body = json.dumps({"commands": target.get_all_commands_as_dict()})
         else:
-            raise falcon.HTTPBadRequest(description="Target '" + target_name + "' not found")
+            raise falcon.HTTPBadRequest(
+                description="Target '" + target_name + "' not found"
+            )
+
 
 # Resource to interact with Target specific Command
 # /targets/{target_name}/commands/{command_name}
@@ -196,10 +266,11 @@ class TargetCommandsRESTResource(object):
 # PATCH updates command name to new_name
 # DELETE deletes command
 
+
 class TargetCommandRESTResource(object):
     def on_get(self, req, resp, target_name, command_name):
         resp.body = json.dumps(get_command(target_name, command_name).to_dict())
-    
+
     def on_put(self, req, resp, target_name, command_name):
         value = req.get_param("value")
         blaster_attr = req.get_param("blaster_attr")
@@ -211,23 +282,34 @@ class TargetCommandRESTResource(object):
             target.put_command(command_name, value)
         else:
             if blaster_attr is None or blaster_value is None:
-                raise falcon.HTTPBadRequest(description="If attempting to learn a command, you must specify blaster_attr of ip, mac, or name and corresponding blaster_value. You can also specify the IR sequence directly with the value parameter")
+                raise falcon.HTTPBadRequest(
+                    description="If attempting to learn a command, you must specify blaster_attr of ip, mac, or name and corresponding blaster_value. You can also specify the IR sequence directly with the value parameter"
+                )
             else:
                 blaster = get_blaster(blaster_attr, blaster_value)
                 value = blaster.get_command()
                 if value:
                     target.put_command(command_name, value)
                 else:
-                    raise falcon.HTTPGatewayTimeout(description="Blaster did not receive any IR signals to learn")
+                    raise falcon.HTTPGatewayTimeout(
+                        description="Blaster did not receive any IR signals to learn"
+                    )
 
     def on_patch(self, req, resp, target_name, command_name):
         new_name = req.get_param("new_name", required=True)
 
         if not get_command(target_name, new_name).update_name(new_name):
-            raise falcon.HTTPConflict(description="Command '" + new_name + "' already exists for Target'" + target_name + "'")
-    
+            raise falcon.HTTPConflict(
+                description="Command '"
+                + new_name
+                + "' already exists for Target'"
+                + target_name
+                + "'"
+            )
+
     def on_delete(self, req, resp, target_name, command_name):
         get_command(target_name, command_name).delete_instance()
+
 
 # falcon.API instances are callable WSGI apps
 app = falcon.API(middleware=MiddlewareDatabaseHandler())
@@ -245,15 +327,15 @@ target_command = TargetCommandRESTResource()
 commands = CommandsRESTResource()
 
 # All supported routes.
-app.add_route('/discoverblasters', discover)
-app.add_route('/blasters', blasters)
-app.add_route('/targets', targets)
-app.add_route('/commands', commands)
-app.add_route('/blasters/{attr}/{value}', blaster)
-app.add_route('/blasters/{attr}/{value}/status', blaster_status)
-app.add_route('/targets/{target_name}/commands/{command_name}', target_command)
-app.add_route('/targets/{target_name}/commands', target_commands)
-app.add_route('/targets/{target_name}', target)
+app.add_route("/discoverblasters", discover)
+app.add_route("/blasters", blasters)
+app.add_route("/targets", targets)
+app.add_route("/commands", commands)
+app.add_route("/blasters/{attr}/{value}", blaster)
+app.add_route("/blasters/{attr}/{value}/status", blaster_status)
+app.add_route("/targets/{target_name}/commands/{command_name}", target_command)
+app.add_route("/targets/{target_name}/commands", target_commands)
+app.add_route("/targets/{target_name}", target)
 
 # Initialize blasters DB by discovering blasters
 blaster_db.blasters_db.connect()
