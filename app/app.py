@@ -355,7 +355,7 @@ blaster_db.blasters_db.close()
 command_db.commands_db.connect()
 
 # Migrate from hex to base64 for IR values
-if not command_db.commands_db.table_exists("Encoding"):
+if not command_db.Encoding.table_exists():
     for command in command_db.Command.select():
         try:
             _bytes = blaster_db.dec_hex(command.value)
@@ -363,14 +363,16 @@ if not command_db.commands_db.table_exists("Encoding"):
             command.save()
         except ValueError:
             command_db.commands_db.close()
+            break
 
     command_db.Encoding.create_table(safe=True)
     command_db.Encoding.create(encoding="base64", active_since=datetime.utcnow())
 
-command_db.commands_db.close()
+if not command_db.commands_db.is_closed():
+    command_db.commands_db.close()
 
 ### Blaster DB Migrations
 
-blaster_db.blasters_db.connect()
+# blaster_db.blasters_db.connect()
 
-blaster_db.blasters_db.close()
+# blaster_db.blasters_db.close()
