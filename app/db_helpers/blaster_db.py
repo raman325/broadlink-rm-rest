@@ -46,7 +46,7 @@ class Blaster(BaseBlastersModel):
         )
         try:
             device.auth()
-        except socket.timeout:
+        except broadlink.exceptions.NetworkTimeoutError:
             _LOGGER.error(
                 "Can't connect to device %s (IP: %s MAC: %s)", self.name, self.ip, self.mac
             )
