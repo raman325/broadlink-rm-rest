@@ -48,7 +48,10 @@ class Blaster(BaseBlastersModel):
             device.auth()
         except broadlink.exceptions.NetworkTimeoutError:
             _LOGGER.error(
-                "Can't connect to device %s (IP: %s MAC: %s)", self.name, self.ip, self.mac
+                "Can't connect to device %s (IP: %s MAC: %s)",
+                self.name,
+                self.ip,
+                self.mac,
             )
             return None
         return device
@@ -145,11 +148,15 @@ def get_new_blasters(timeout=DISCOVERY_TIMEOUT):
 
     for blaster in discover_blasters(timeout=timeout):
         mac_hex = enc_hex(blaster.mac)
-        check_blaster = Blaster.get_or_none(Blaster.mac_hex % mac_hex)
+        check_blaster = Blaster.get_or_none(
+            Blaster.mac_hex % mac_hex
+        ) or Blaster.get_or_none(Blaster.mac % blaster.mac)
 
         if check_blaster:
             check_blaster.ip = blaster.host[0]
             check_blaster.port = blaster.host[1]
+            check_blaster.mac = blaster.mac
+            check_blaster.mac_hex = mac_hex
             check_blaster.save()
         else:
             Blaster.create(
