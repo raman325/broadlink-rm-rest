@@ -1,6 +1,3 @@
-broadlink==0.11.1
-falcon
-gunicorn
-peewee
+-r requirements.txt
 black
 isort

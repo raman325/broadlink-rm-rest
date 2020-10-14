@@ -95,10 +95,12 @@ class Blaster(BaseBlastersModel):
             value = device.check_data()
             x = 0
 
-            while not value and x < 5:
-                x += 1
-                sleep(2)
+            for _ in range(1, 6):
                 value = device.check_data()
+                if value:
+                    break
+                else:
+                    sleep(2)
 
             if value and value.replace(b"\x00", b"") != b"":
                 try:
