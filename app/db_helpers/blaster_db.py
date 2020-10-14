@@ -3,6 +3,7 @@
 import codecs
 from logging import getLogger
 import os
+import socket
 from time import sleep
 
 import broadlink
@@ -34,17 +35,22 @@ class Blaster(BaseBlastersModel):
     mac_hex = TextField(unique=True)
     name = TextField(unique=True, null=True)
 
-    def get_device(self):
+    @property
+    def available(self):
+        return self.device is not None
+
+    @property
+    def device(self):
         device = broadlink.rm(
             host=(self.ip, self.port), mac=dec_hex(self.mac_hex), devtype=self.devtype
         )
         try:
             device.auth()
-        except Exception as err:
+        except socket.timeout:
             _LOGGER.error(
-                "Exception for device %s (IP: %s MAC: %s)", self.name, self.ip, self.mac
+                "Can't connect to device %s (IP: %s MAC: %s)", self.name, self.ip, self.mac
             )
-            raise err
+            return None
         return device
 
     def to_dict(self):
@@ -52,7 +58,7 @@ class Blaster(BaseBlastersModel):
             "name": self.name,
             "ip": self.ip,
             "mac": self.mac,
-            "available": self.available(),
+            "available": self.available,
         }
 
     def put_name(self, name):
@@ -66,46 +72,42 @@ class Blaster(BaseBlastersModel):
             return True
 
     def send_command(self, command):
-        device = self.get_device()
-        device.send_data(dec_b64(command.value))
+        device = self.device
+        if device:
+            device.send_data(dec_b64(command.value))
+            return True
+        return False
 
     def send_raw(self, value):
-        device = self.get_device()
-        device.send_data(dec_b64(value))
+        device = self.device
+        if device:
+            device.send_data(dec_b64(value))
+            return True
+        else:
+            return False
 
     def get_command(self):
-        device = self.get_device()
-        device.enter_learning()
+        device = self.device
+        if device:
+            device.enter_learning()
 
-        sleep(2)
-        value = device.check_data()
-        x = 0
-
-        while not value and x < 5:
-            x += 1
             sleep(2)
             value = device.check_data()
+            x = 0
 
-        if value and value.replace(b"\x00", b"") != b"":
-            try:
-                return enc_b64(value)
-            except:
+            while not value and x < 5:
+                x += 1
+                sleep(2)
+                value = device.check_data()
+
+            if value and value.replace(b"\x00", b"") != b"":
+                try:
+                    return enc_b64(value)
+                except:
+                    return None
+            else:
                 return None
-        else:
-            return None
-
-    def available(self):
-        return (
-            len(
-                list(
-                    filter(
-                        lambda blaster: enc_hex(blaster.mac) == self.mac_hex,
-                        discover_blasters(timeout=STATUS_TIMEOUT),
-                    )
-                )
-            )
-            > 0
-        )
+        return False
 
 
 def friendly_mac_from_hex(raw):
