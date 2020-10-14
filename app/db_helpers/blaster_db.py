@@ -1,6 +1,7 @@
 # dependencies - peewee, broadlink
 
 import codecs
+from logging import getLogger
 import os
 from time import sleep
 
@@ -9,6 +10,8 @@ from peewee import AutoField, IntegerField, Model, SqliteDatabase, TextField
 
 STATUS_TIMEOUT = float(os.environ.get("BROADLINK_STATUS_TIMEOUT", "1"))
 DISCOVERY_TIMEOUT = float(os.environ.get("BROADLINK_DISCOVERY_TIMEOUT", "5"))
+
+_LOGGER = getLogger(__name__)
 
 blasters_db_path = "data/blasters.db"
 
@@ -35,7 +38,13 @@ class Blaster(BaseBlastersModel):
         device = broadlink.rm(
             host=(self.ip, self.port), mac=dec_hex(self.mac_hex), devtype=self.devtype
         )
-        device.auth()
+        try:
+            device.auth()
+        except Exception as err:
+            _LOGGER.error(
+                "Exception for device %s (IP: %s MAC: %s)", self.name, self.ip, self.mac
+            )
+            raise err
         return device
 
     def to_dict(self):
@@ -100,19 +109,7 @@ class Blaster(BaseBlastersModel):
 
 
 def friendly_mac_from_hex(raw):
-    return (
-        raw[10:12]
-        + ":"
-        + raw[8:10]
-        + ":"
-        + raw[6:8]
-        + ":"
-        + raw[4:6]
-        + ":"
-        + raw[2:4]
-        + ":"
-        + raw[0:2]
-    )
+    return ":".join([raw[((5 - x) * 2) : ((6 - x) * 2)] for x in range(0, 6)])
 
 
 def enc_hex(raw):

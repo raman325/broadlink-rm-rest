@@ -12,6 +12,7 @@ _LOGGER = logging.getLogger(__name__)
 
 ## Generic helper functions
 
+
 def get_blaster(attr, value):
     if attr.lower() == "name":
         blaster = blaster_db.get_blaster_by_name(value)
