@@ -113,7 +113,7 @@ class Blaster(BaseBlastersModel):
 
 
 def friendly_mac_from_hex(raw):
-    return ":".join([raw[((5 - x) * 2) : ((6 - x) * 2)] for x in range(0, 6)])
+    return ":".join([raw[(x * 2) : ((x + 1) * 2)] for x in range(0, 6)])
 
 
 def enc_hex(raw):
