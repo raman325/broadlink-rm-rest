@@ -155,7 +155,7 @@ def get_new_blasters(timeout=DISCOVERY_TIMEOUT):
             check_blaster.port = blaster.host[1]
             check_blaster.mac = mac
             check_blaster.mac_hex = mac_hex
-            _LOGGER.error(check_blaster)
+            _LOGGER.error("%s,", {"ip": check_blaster.ip, "mac": check_blaster.mac, "mac_hex": check_blaster.mac_hex})
             check_blaster.save()
         else:
             Blaster.create(
