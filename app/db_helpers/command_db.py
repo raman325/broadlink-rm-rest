@@ -1,5 +1,3 @@
-# dependencies - peewee
-
 from peewee import (
     AutoField,
     DateTimeField,

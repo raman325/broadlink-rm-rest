@@ -1,9 +1,6 @@
-# dependencies - peewee, broadlink
-
 import codecs
 from logging import getLogger
 import os
-import socket
 from time import sleep
 
 import broadlink
@@ -148,14 +145,15 @@ def get_new_blasters(timeout=DISCOVERY_TIMEOUT):
 
     for blaster in discover_blasters(timeout=timeout):
         mac_hex = enc_hex(blaster.mac)
+        mac = friendly_mac_from_hex(mac_hex)
         check_blaster = Blaster.get_or_none(
             Blaster.mac_hex % mac_hex
-        ) or Blaster.get_or_none(Blaster.mac % blaster.mac)
+        ) or Blaster.get_or_none(Blaster.mac % mac)
 
         if check_blaster:
             check_blaster.ip = blaster.host[0]
             check_blaster.port = blaster.host[1]
-            check_blaster.mac = blaster.mac
+            check_blaster.mac = mac
             check_blaster.mac_hex = mac_hex
             check_blaster.save()
         else:

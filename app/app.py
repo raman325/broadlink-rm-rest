@@ -1,5 +1,3 @@
-# dependencies - falcon, wsgi server (waitress, uwsgi, etc)
-
 from datetime import datetime
 import json
 import logging
