@@ -352,6 +352,8 @@ blaster_db.blasters_db.close()
 ### Command DB Migrations
 
 command_db.commands_db.connect()
+if not command_db.Command.table_exists():
+    command_db.Command.create_table(safe=True)
 
 # Migrate from hex to base64 for IR values
 if not command_db.Encoding.table_exists():
